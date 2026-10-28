@@ -1,0 +1,64 @@
+{
+  "tool": "AudioBench",
+  "version": "0.1.0",
+  "expected_path": "examples\\demo\\reference_white_noise.wav",
+  "actual_path": "examples\\demo\\render_identical.wav",
+  "thresholds": {
+    "min_snr_db": 60.0,
+    "max_delay_ms": 0.5,
+    "max_duration_delta_ms": 1.0,
+    "max_error_dbfs": -80.0
+  },
+  "metrics": {
+    "sample_rate_hz": 48000,
+    "channels": 1,
+    "expected_frames": 24000,
+    "actual_frames": 24000,
+    "expected_duration_s": 0.5,
+    "actual_duration_s": 0.5,
+    "duration_delta_ms": 0.0,
+    "expected_peak_dbfs": -9.118638521315232,
+    "actual_peak_dbfs": -9.118638521315232,
+    "expected_rms_dbfs": -21.4403455778291,
+    "actual_rms_dbfs": -21.4403455778291,
+    "peak_delta_db": 0.0,
+    "rms_delta_db": 0.0,
+    "error_rms_dbfs": null,
+    "snr_db": null,
+    "relative_error_db": null,
+    "correlation": 1.0,
+    "mean_spectral_delta_db": 0.0,
+    "spectral_shape_error_db": 0.0,
+    "max_abs_error": 0.0,
+    "estimated_delay_samples": 0,
+    "estimated_delay_ms": 0.0,
+    "delay_correlation": 0.9999999999999997,
+    "aligned_snr_db": null,
+    "aligned_samples_identical": true,
+    "identical_samples": true,
+    "duration_match": true
+  },
+  "evaluation": {
+    "status": "PASS",
+    "checks": {
+      "duration": {
+        "status": "PASS",
+        "observed": 0.0,
+        "limit": 1.0,
+        "message": "Duration difference is within the configured tolerance."
+      },
+      "latency": {
+        "status": "PASS",
+        "observed": 0.0,
+        "limit": 0.5,
+        "message": "Estimated delay is within the configured tolerance."
+      },
+      "fidelity": {
+        "status": "PASS",
+        "observed": "exact match",
+        "limit": -80.0,
+        "message": "The two renders are sample-identical."
+      }
+    }
+  }
+}

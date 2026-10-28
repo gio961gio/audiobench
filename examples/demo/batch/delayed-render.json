@@ -1,0 +1,66 @@
+{
+  "tool": "AudioBench",
+  "version": "0.1.0",
+  "test_id": "delayed-render",
+  "description": "Artificial 2.5 ms delay exceeding 0.5 ms tolerance (FAIL)",
+  "expected_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav",
+  "actual_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\render_delayed_2_5ms.wav",
+  "thresholds": {
+    "min_snr_db": 60.0,
+    "max_delay_ms": 0.5,
+    "max_duration_delta_ms": 1.0,
+    "max_error_dbfs": -80.0
+  },
+  "metrics": {
+    "sample_rate_hz": 48000,
+    "channels": 1,
+    "expected_frames": 24000,
+    "actual_frames": 24000,
+    "expected_duration_s": 0.5,
+    "actual_duration_s": 0.5,
+    "duration_delta_ms": 0.0,
+    "expected_peak_dbfs": -9.118638521315232,
+    "actual_peak_dbfs": -9.118638521315232,
+    "expected_rms_dbfs": -21.4403455778291,
+    "actual_rms_dbfs": -21.463373076874632,
+    "peak_delta_db": 0.0,
+    "rms_delta_db": -0.023027499045528123,
+    "error_rms_dbfs": -18.492732634394663,
+    "snr_db": -2.9476129434344376,
+    "relative_error_db": 2.947612943434437,
+    "correlation": 0.011717445102659471,
+    "mean_spectral_delta_db": 0.159270568563057,
+    "spectral_shape_error_db": 0.16109617539495347,
+    "max_abs_error": 0.5442622900009155,
+    "estimated_delay_samples": 120,
+    "estimated_delay_ms": 2.5,
+    "delay_correlation": 0.9973523593772929,
+    "aligned_snr_db": null,
+    "aligned_samples_identical": true,
+    "identical_samples": false,
+    "duration_match": true
+  },
+  "evaluation": {
+    "status": "FAIL",
+    "checks": {
+      "duration": {
+        "status": "PASS",
+        "observed": 0.0,
+        "limit": 1.0,
+        "message": "Duration difference is within the configured tolerance."
+      },
+      "latency": {
+        "status": "FAIL",
+        "observed": 2.5,
+        "limit": 0.5,
+        "message": "Estimated delay exceeds the configured tolerance."
+      },
+      "fidelity": {
+        "status": "FAIL",
+        "observed": -2.9476129434344376,
+        "limit": 60.0,
+        "message": "Signal-to-error ratio is below the configured minimum."
+      }
+    }
+  }
+}

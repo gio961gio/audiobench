@@ -1,0 +1,23 @@
+{
+  "name": "demo-regression-suite",
+  "thresholds": {
+    "min_snr_db": 60.0,
+    "max_delay_ms": 0.5,
+    "max_duration_delta_ms": 1.0,
+    "max_error_dbfs": -80.0
+  },
+  "tests": [
+    {
+      "id": "identical-render",
+      "description": "Deterministic white noise identical render (PASS)",
+      "expected": "reference_white_noise.wav",
+      "actual": "render_identical.wav"
+    },
+    {
+      "id": "delayed-render",
+      "description": "Artificial 2.5 ms delay exceeding 0.5 ms tolerance (FAIL)",
+      "expected": "reference_white_noise.wav",
+      "actual": "render_delayed_2_5ms.wav"
+    }
+  ]
+}

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AudioBench Suite Summary · demo-regression-suite</title>
+<style>
+:root { color-scheme: light dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+body { max-width: 1100px; margin: 0 auto; padding: 28px 20px 56px; line-height: 1.5; }
+header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+h1 { margin:0 0 4px; font-size: clamp(1.8rem, 4vw, 2.5rem); }
+.sub { color: #64748b; margin:0; }
+section { margin-top:28px; }
+h2 { font-size:1.15rem; margin-bottom:12px; }
+.pill { display:inline-block; border-radius:999px; padding:4px 12px; font-size:.82rem; font-weight:800; letter-spacing:.04em; }
+.pass { background:#dcfce7; color:#166534; }
+.fail { background:#fee2e2; color:#991b1b; }
+.warn { background:#fef3c7; color:#92400e; }
+.error { background:#fecaca; color:#7f1d1d; }
+.card { border:1px solid #94a3b855; border-radius:14px; padding:16px; overflow:hidden; }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px; margin-top:16px; }
+.stat-box { border:1px solid #94a3b844; border-radius:10px; padding:12px; text-align:center; }
+.stat-val { font-size:1.6rem; font-weight:700; margin-top:4px; }
+.stat-val.pass { color:#16a34a; background:transparent; }
+.stat-val.warn { color:#d97706; background:transparent; }
+.stat-val.fail { color:#dc2626; background:transparent; }
+.stat-val.error { color:#991b1b; background:transparent; }
+table { width:100%; border-collapse:collapse; }
+th,td { text-align:left; padding:10px 10px; border-bottom:1px solid #94a3b844; vertical-align:top; font-size:.9rem; }
+th { font-weight:650; color:#475569; }
+tbody tr:last-child td { border-bottom:0; }
+.muted { color:#64748b; }
+.small { font-size:.8rem; margin-top:2px; }
+.error-msg { color:#dc2626; font-size:.8rem; margin-top:4px; }
+a { color:#2563eb; text-decoration:none; font-weight:550; }
+a:hover { text-decoration:underline; }
+pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:440px; overflow:auto; }
+@media (max-width:700px) { body { padding:18px 12px 36px; } table { display:block; overflow-x:auto; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>AudioBench Suite</h1>
+    <p class="sub">Regression test suite · demo-regression-suite</p>
+  </div>
+  <span class="pill fail">FAIL</span>
+</header>
+
+<div class="stats-grid">
+  <div class="stat-box"><div class="muted small">Total Tests</div><div class="stat-val">2</div></div>
+  <div class="stat-box"><div class="muted small">Passed</div><div class="stat-val pass">1</div></div>
+  <div class="stat-box"><div class="muted small">Warnings</div><div class="stat-val warn">0</div></div>
+  <div class="stat-box"><div class="muted small">Failed</div><div class="stat-val fail">1</div></div>
+  <div class="stat-box"><div class="muted small">Errors</div><div class="stat-val error">0</div></div>
+</div>
+
+<section>
+  <h2>Test Cases</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Test Case</th>
+          <th>Status</th>
+          <th>SNR</th>
+          <th>Est. Delay</th>
+          <th>RMS Error</th>
+          <th>Duration Delta</th>
+          <th>Artifacts</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>identical-render</strong><div class="muted small">Deterministic white noise identical render (PASS)</div></td><td><span class='pill pass'>PASS</span></td><td>∞ (exact)</td><td>0.000 ms</td><td>—</td><td>0.00 ms</td><td><a href="identical-render.html">Report</a> · <a href="identical-render.json">JSON</a></td></tr><tr><td><strong>delayed-render</strong><div class="muted small">Artificial 2.5 ms delay exceeding 0.5 ms tolerance (FAIL)</div></td><td><span class='pill fail'>FAIL</span></td><td>-2.95 dB</td><td>2.500 ms</td><td>-18.49 dBFS</td><td>0.00 ms</td><td><a href="delayed-render.html">Report</a> · <a href="delayed-render.json">JSON</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Suite Machine-Readable Summary</h2>
+  <div class="card">
+    <pre>{
+  &quot;tool&quot;: &quot;AudioBench&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;name&quot;: &quot;demo-regression-suite&quot;,
+  &quot;manifest_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\demo_manifest.json&quot;,
+  &quot;status&quot;: &quot;FAIL&quot;,
+  &quot;summary&quot;: {
+    &quot;total&quot;: 2,
+    &quot;passed&quot;: 1,
+    &quot;warned&quot;: 0,
+    &quot;failed&quot;: 1,
+    &quot;errored&quot;: 0
+  },
+  &quot;output_dir&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch&quot;,
+  &quot;summary_html&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\summary.html&quot;,
+  &quot;summary_json&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\summary.json&quot;,
+  &quot;tests&quot;: [
+    {
+      &quot;id&quot;: &quot;identical-render&quot;,
+      &quot;expected_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav&quot;,
+      &quot;actual_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\render_identical.wav&quot;,
+      &quot;status&quot;: &quot;PASS&quot;,
+      &quot;description&quot;: &quot;Deterministic white noise identical render (PASS)&quot;,
+      &quot;error_message&quot;: null,
+      &quot;metrics&quot;: {
+        &quot;sample_rate_hz&quot;: 48000,
+        &quot;channels&quot;: 1,
+        &quot;expected_frames&quot;: 24000,
+        &quot;actual_frames&quot;: 24000,
+        &quot;expected_duration_s&quot;: 0.5,
+        &quot;actual_duration_s&quot;: 0.5,
+        &quot;duration_delta_ms&quot;: 0.0,
+        &quot;expected_peak_dbfs&quot;: -9.118638521315232,
+        &quot;actual_peak_dbfs&quot;: -9.118638521315232,
+        &quot;expected_rms_dbfs&quot;: -21.4403455778291,
+        &quot;actual_rms_dbfs&quot;: -21.4403455778291,
+        &quot;peak_delta_db&quot;: 0.0,
+        &quot;rms_delta_db&quot;: 0.0,
+        &quot;error_rms_dbfs&quot;: null,
+        &quot;snr_db&quot;: null,
+        &quot;relative_error_db&quot;: null,
+        &quot;correlation&quot;: 1.0,
+        &quot;mean_spectral_delta_db&quot;: 0.0,
+        &quot;spectral_shape_error_db&quot;: 0.0,
+        &quot;max_abs_error&quot;: 0.0,
+        &quot;estimated_delay_samples&quot;: 0,
+        &quot;estimated_delay_ms&quot;: 0.0,
+        &quot;delay_correlation&quot;: 0.9999999999999997,
+        &quot;aligned_snr_db&quot;: null,
+        &quot;aligned_samples_identical&quot;: true,
+        &quot;identical_samples&quot;: true,
+        &quot;duration_match&quot;: true
+      },
+      &quot;evaluation&quot;: {
+        &quot;status&quot;: &quot;PASS&quot;,
+        &quot;checks&quot;: {
+          &quot;duration&quot;: {
+            &quot;status&quot;: &quot;PASS&quot;,
+            &quot;observed&quot;: 0.0,
+            &quot;limit&quot;: 1.0,
+            &quot;message&quot;: &quot;Duration difference is within the configured tolerance.&quot;
+          },
+          &quot;latency&quot;: {
+            &quot;status&quot;: &quot;PASS&quot;,
+            &quot;observed&quot;: 0.0,
+            &quot;limit&quot;: 0.5,
+            &quot;message&quot;: &quot;Estimated delay is within the configured tolerance.&quot;
+          },
+          &quot;fidelity&quot;: {
+            &quot;status&quot;: &quot;PASS&quot;,
+            &quot;observed&quot;: &quot;exact match&quot;,
+            &quot;limit&quot;: -80.0,
+            &quot;message&quot;: &quot;The two renders are sample-identical.&quot;
+          }
+        }
+      },
+      &quot;thresholds&quot;: {
+        &quot;min_snr_db&quot;: 60.0,
+        &quot;max_delay_ms&quot;: 0.5,
+        &quot;max_duration_delta_ms&quot;: 1.0,
+        &quot;max_error_dbfs&quot;: -80.0
+      },
+      &quot;html_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\identical-render.html&quot;,
+      &quot;json_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\identical-render.json&quot;
+    },
+    {
+      &quot;id&quot;: &quot;delayed-render&quot;,
+      &quot;expected_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav&quot;,
+      &quot;actual_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\render_delayed_2_5ms.wav&quot;,
+      &quot;status&quot;: &quot;FAIL&quot;,
+      &quot;description&quot;: &quot;Artificial 2.5 ms delay exceeding 0.5 ms tolerance (FAIL)&quot;,
+      &quot;error_message&quot;: null,
+      &quot;metrics&quot;: {
+        &quot;sample_rate_hz&quot;: 48000,
+        &quot;channels&quot;: 1,
+        &quot;expected_frames&quot;: 24000,
+        &quot;actual_frames&quot;: 24000,
+        &quot;expected_duration_s&quot;: 0.5,
+        &quot;actual_duration_s&quot;: 0.5,
+        &quot;duration_delta_ms&quot;: 0.0,
+        &quot;expected_peak_dbfs&quot;: -9.118638521315232,
+        &quot;actual_peak_dbfs&quot;: -9.118638521315232,
+        &quot;expected_rms_dbfs&quot;: -21.4403455778291,
+        &quot;actual_rms_dbfs&quot;: -21.463373076874632,
+        &quot;peak_delta_db&quot;: 0.0,
+        &quot;rms_delta_db&quot;: -0.023027499045528123,
+        &quot;error_rms_dbfs&quot;: -18.492732634394663,
+        &quot;snr_db&quot;: -2.9476129434344376,
+        &quot;relative_error_db&quot;: 2.947612943434437,
+        &quot;correlation&quot;: 0.011717445102659471,
+        &quot;mean_spectral_delta_db&quot;: 0.159270568563057,
+        &quot;spectral_shape_error_db&quot;: 0.16109617539495347,
+        &quot;max_abs_error&quot;: 0.5442622900009155,
+        &quot;estimated_delay_samples&quot;: 120,
+        &quot;estimated_delay_ms&quot;: 2.5,
+        &quot;delay_correlation&quot;: 0.9973523593772929,
+        &quot;aligned_snr_db&quot;: null,
+        &quot;aligned_samples_identical&quot;: true,
+        &quot;identical_samples&quot;: false,
+        &quot;duration_match&quot;: true
+      },
+      &quot;evaluation&quot;: {
+        &quot;status&quot;: &quot;FAIL&quot;,
+        &quot;checks&quot;: {
+          &quot;duration&quot;: {
+            &quot;status&quot;: &quot;PASS&quot;,
+            &quot;observed&quot;: 0.0,
+            &quot;limit&quot;: 1.0,
+            &quot;message&quot;: &quot;Duration difference is within the configured tolerance.&quot;
+          },
+          &quot;latency&quot;: {
+            &quot;status&quot;: &quot;FAIL&quot;,
+            &quot;observed&quot;: 2.5,
+            &quot;limit&quot;: 0.5,
+            &quot;message&quot;: &quot;Estimated delay exceeds the configured tolerance.&quot;
+          },
+          &quot;fidelity&quot;: {
+            &quot;status&quot;: &quot;FAIL&quot;,
+            &quot;observed&quot;: -2.9476129434344376,
+            &quot;limit&quot;: 60.0,
+            &quot;message&quot;: &quot;Signal-to-error ratio is below the configured minimum.&quot;
+          }
+        }
+      },
+      &quot;thresholds&quot;: {
+        &quot;min_snr_db&quot;: 60.0,
+        &quot;max_delay_ms&quot;: 0.5,
+        &quot;max_duration_delta_ms&quot;: 1.0,
+        &quot;max_error_dbfs&quot;: -80.0
+      },
+      &quot;html_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\delayed-render.html&quot;,
+      &quot;json_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\delayed-render.json&quot;
+    }
+  ]
+}</pre>
+  </div>
+</section>
+
+<section>
+  <p class="muted small">Generated by AudioBench. Offline DSP regression test suite summary.</p>
+</section>
+</body>
+</html>
