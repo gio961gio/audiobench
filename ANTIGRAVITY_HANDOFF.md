@@ -32,13 +32,17 @@ Evolvere da un comparatore di due file WAV a un **regression test bench affidabi
 - Caricamento/scrittura WAV con dati convertiti a float per l'analisi.
 - Rifiuto esplicito dei file vuoti, dei campioni non finiti, dei sample rate differenti e dei numeri di canali incompatibili; non viene fatto resampling automatico.
 - Metriche di durata, sample peak, RMS, errore RMS, SNR, errore relativo, correlazione, massimo errore assoluto, differenza media tra magnitudini spettrali, errore di forma spettrale normalizzato per livello e stima del ritardo tramite cross-correlazione.
-- Quality gate separati per fedeltà, latenza stimata e durata.
+- Analisi spettrale su 7 bande acustiche standard con noise floor clamp e clamping delle bande inattive.
+- Analisi di distorsione armonica THD e THD+N con finestratura Blackman-Harris e interpolazione parabolica in frequenza su stimoli sinusoidali.
+- Misura del True-Peak in dBTP conforme a ITU-R BS.1770-4 con oversampling 4x/2x.
+- Sanity check numerico DSP: rilevamento DC offset, campioni clippati e numeri subnormali/denormalizzati a singola precisione IEEE 754.
+- Quality gate separati per fedeltà, latenza stimata, durata, deviazione bande spettrali (`max_band_delta_db`), THD (`max_thd_db`) e True-Peak (`max_true_peak_dbfs`).
 - Suite batch pilotate da file manifest JSON con risoluzione percorsi relativi, override soglie per singolo test e isolamento dei guasti (fault isolation).
 - Stati complessivi `PASS`, `WARN` o `FAIL`.
-- Report HTML autosufficienti per singolo test e dashboard riassuntiva della suite (`summary.html`), con waveform SVG e JSON incorporato.
+- Report HTML autosufficienti per singolo test e dashboard riassuntiva della suite (`summary.html`), con waveform SVG, tabella frequenze e JSON incorporato.
 - Output JSON autonomo per singolo test e aggregato per suite (`summary.json`).
 - Codici di uscita CLI: `0` per PASS/WARN (salvo `--fail-on-warn`), `1` per FAIL/ERROR o WARN con quell'opzione, `2` per input/configurazione/manifest/errore runtime gestito.
-- Suite estesa di 37 test unitari in `tests/` (`test_audio.py`, `test_metrics.py`, `test_batch.py`, `test_cli.py`).
+- Suite estesa di 56 test unitari in `tests/` (`test_audio.py`, `test_metrics.py`, `test_batch.py`, `test_cli.py`, `test_analysis.py`).
 - GitHub Actions per eseguire i test su Python 3.10, 3.11, 3.12 e 3.13.
 
 ### Non implementato (non dichiararlo come se lo fosse)
@@ -46,9 +50,6 @@ Evolvere da un comparatore di due file WAV a un **regression test bench affidabi
 - Non carica né esegue direttamente plugin VST3, Audio Unit o altri plugin nativi.
 - Non controlla una DAW e non orchestra il rendering di plugin.
 - Non fa resampling automatico.
-- Non implementa una misura certificata/oversampled di true peak.
-- Non implementa ancora un analizzatore calibrato THD+N.
-- Le metriche spettrali correnti sono indicatori diagnostici basati sul confronto delle magnitudini; non sono una risposta in frequenza calibrata.
 - La stima del ritardo via cross-correlazione può essere ambigua su silenzio, sinusoidi pure e segnali periodici. Va preferito un impulso o un segnale broadband appropriato per il test di latenza.
 - Un risultato PASS non equivale a una certificazione percettiva, a una prova che il suono sia musicalmente migliore o alla conformità a uno standard.
 

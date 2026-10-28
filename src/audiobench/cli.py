@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import asdict
 from pathlib import Path
 from typing import Sequence
 
@@ -34,6 +35,9 @@ def _add_compare_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument("--max-duration-delta-ms", type=float, default=1.0, help="Maximum absolute duration delta for PASS (default: 1 ms)")
     parser.add_argument("--max-error-dbfs", type=float, default=-80.0, help="Maximum RMS error for a silent reference (default: -80 dBFS)")
     parser.add_argument("--max-lag-ms", type=float, default=100.0, help="Search range for delay estimation (default: 100 ms)")
+    parser.add_argument("--max-band-delta-db", type=float, default=None, help="Maximum allowed dB deviation in any frequency band")
+    parser.add_argument("--max-thd-db", type=float, default=None, help="Maximum allowed THD in dB for sinusoidal renders")
+    parser.add_argument("--max-true-peak-dbfs", type=float, default=None, help="Maximum allowed True-Peak in dBTP")
     parser.add_argument("--fail-on-warn", action="store_true", help="Return exit code 1 for WARN as well as FAIL")
 
 
@@ -79,6 +83,9 @@ def _run_compare(args: argparse.Namespace) -> int:
     if args.min_snr_db < 0:
         print("error: --min-snr-db must be non-negative", file=sys.stderr)
         return 2
+    if args.max_band_delta_db is not None and args.max_band_delta_db < 0:
+        print("error: --max-band-delta-db must be non-negative", file=sys.stderr)
+        return 2
     try:
         expected, expected_sr = load_audio(args.expected)
         actual, actual_sr = load_audio(args.actual)
@@ -93,6 +100,9 @@ def _run_compare(args: argparse.Namespace) -> int:
             max_delay_ms=args.max_delay_ms,
             max_duration_delta_ms=args.max_duration_delta_ms,
             max_error_dbfs=args.max_error_dbfs,
+            max_band_delta_db=args.max_band_delta_db,
+            max_thd_db=args.max_thd_db,
+            max_true_peak_dbfs=args.max_true_peak_dbfs,
         )
         evaluation = evaluate_thresholds(metrics, limits)
         json_path = Path(args.json_path)
@@ -104,7 +114,7 @@ def _run_compare(args: argparse.Namespace) -> int:
                     "version": __version__,
                     "expected_path": str(Path(args.expected)),
                     "actual_path": str(Path(args.actual)),
-                    "thresholds": limits.__dict__,
+                    "thresholds": asdict(limits),
                     "metrics": metrics,
                     "evaluation": evaluation,
                 },
@@ -132,6 +142,11 @@ def _run_compare(args: argparse.Namespace) -> int:
     print(f"  Estimated delay: {_human(metrics['estimated_delay_ms'], ' ms')}")
     print(f"  SNR vs. reference: {_human(metrics['snr_db'], ' dB', exact=metrics['identical_samples'])}")
     print(f"  RMS error: {_human(metrics['error_rms_dbfs'], ' dBFS')}")
+    if metrics.get("actual_true_peak_dbtp") is not None:
+        print(f"  True-Peak: {metrics['actual_true_peak_dbtp']:.2f} dBTP")
+    thd_info = metrics.get("actual_thd") or {}
+    if thd_info.get("is_sinusoidal") and thd_info.get("thd_db") is not None:
+        print(f"  THD: {thd_info['thd_db']:.2f} dB ({thd_info['thd_percent']:.3f}%)")
     print(f"  HTML report: {html_path}")
     print(f"  JSON result: {json_path}")
     for name, check in evaluation["checks"].items():

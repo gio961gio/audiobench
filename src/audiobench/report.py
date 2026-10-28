@@ -110,30 +110,83 @@ def write_html_report(
             "</tr>"
         )
 
-    metric_rows = "\n".join(
-        [
-            _row("Sample rate", metrics["sample_rate_hz"], " Hz", 0),
-            _row("Channels", metrics["channels"], "", 0),
-            _row("Expected duration", metrics["expected_duration_s"], " s", 4),
-            _row("Actual duration", metrics["actual_duration_s"], " s", 4),
-            _row("Duration delta (actual − expected)", metrics["duration_delta_ms"], " ms", 3),
-            _row("Expected RMS", metrics["expected_rms_dbfs"], " dBFS"),
-            _row("Actual RMS", metrics["actual_rms_dbfs"], " dBFS"),
-            _row("Expected sample peak", metrics["expected_peak_dbfs"], " dBFS"),
-            _row("Actual sample peak", metrics["actual_peak_dbfs"], " dBFS"),
-            _row("RMS error", metrics["error_rms_dbfs"], " dBFS"),
-            _row("SNR vs. reference", metrics["snr_db"], " dB"),
-            _row("Relative error", metrics["relative_error_db"], " dB"),
-            _row("Sample correlation", metrics["correlation"], "", 5),
-            _row("Mean spectral magnitude delta", metrics["mean_spectral_delta_db"], " dB"),
-            _row("Gain-normalized spectral shape error", metrics["spectral_shape_error_db"], " dB"),
-            _row("Estimated latency", metrics["estimated_delay_ms"], " ms", 4),
-            _row("Latency correlation score", metrics["delay_correlation"], "", 4),
-            _row("SNR after estimated alignment", metrics["aligned_snr_db"], " dB"),
-            _row("Samples identical after alignment", metrics["aligned_samples_identical"]),
-            _row("Maximum absolute sample error", metrics["max_abs_error"], "", 8),
-        ]
+    thd = metrics.get("actual_thd") or {}
+    health = metrics.get("dsp_health") or {}
+
+    metric_items = [
+        _row("Sample rate", metrics["sample_rate_hz"], " Hz", 0),
+        _row("Channels", metrics["channels"], "", 0),
+        _row("Expected duration", metrics["expected_duration_s"], " s", 4),
+        _row("Actual duration", metrics["actual_duration_s"], " s", 4),
+        _row("Duration delta (actual − expected)", metrics["duration_delta_ms"], " ms", 3),
+        _row("Expected RMS", metrics["expected_rms_dbfs"], " dBFS"),
+        _row("Actual RMS", metrics["actual_rms_dbfs"], " dBFS"),
+        _row("Expected sample peak", metrics["expected_peak_dbfs"], " dBFS"),
+        _row("Actual sample peak", metrics["actual_peak_dbfs"], " dBFS"),
+        _row("Expected True-Peak", metrics.get("expected_true_peak_dbtp"), " dBTP"),
+        _row("Actual True-Peak", metrics.get("actual_true_peak_dbtp"), " dBTP"),
+        _row("RMS error", metrics["error_rms_dbfs"], " dBFS"),
+        _row("SNR vs. reference", metrics["snr_db"], " dB"),
+        _row("Relative error", metrics["relative_error_db"], " dB"),
+        _row("Sample correlation", metrics["correlation"], "", 5),
+        _row("Mean spectral magnitude delta", metrics["mean_spectral_delta_db"], " dB"),
+        _row("Gain-normalized spectral shape error", metrics["spectral_shape_error_db"], " dB"),
+        _row("Max band-wise deviation", metrics.get("max_abs_band_delta_db"), " dB"),
+        _row("Estimated latency", metrics["estimated_delay_ms"], " ms", 4),
+        _row("Latency correlation score", metrics["delay_correlation"], "", 4),
+        _row("SNR after estimated alignment", metrics["aligned_snr_db"], " dB"),
+        _row("Samples identical after alignment", metrics["aligned_samples_identical"]),
+        _row("Maximum absolute sample error", metrics["max_abs_error"], "", 8),
+    ]
+
+    if thd.get("is_sinusoidal"):
+        metric_items.extend(
+            [
+                _row("Fundamental Frequency", thd.get("fundamental_hz"), " Hz", 1),
+                _row("THD (actual)", thd.get("thd_db"), " dB"),
+                _row("THD % (actual)", thd.get("thd_percent"), " %", 3),
+                _row("THD+N (actual)", thd.get("thdn_db"), " dB"),
+            ]
+        )
+
+    if health:
+        metric_items.extend(
+            [
+                _row("DSP Numerical Health", "Healthy" if health.get("healthy") else "Warning (DC/Denormals/Clipping)"),
+                _row("DC Offset (actual)", health.get("dc_offset_amplitude"), "", 6),
+                _row("Subnormal Floats Count", health.get("subnormals_count"), "", 0),
+                _row("Clipped Samples Count", health.get("clipped_samples_count"), "", 0),
+            ]
+        )
+
+    metric_rows = "\n".join(metric_items)
+
+    band_analysis = metrics.get("band_analysis") or {}
+    bands = band_analysis.get("bands") or {}
+    band_rows = []
+    for b_name, b_info in bands.items():
+        active = b_info.get("active", False)
+        delta = b_info.get("delta_db")
+        delta_str = _fmt(delta, " dB") if delta is not None else "—"
+        exp_str = _fmt(b_info.get("expected_dbfs"), " dBFS")
+        act_str = _fmt(b_info.get("actual_dbfs"), " dBFS")
+        range_str = f"{b_info.get('f_low_hz', 0):.0f} – {b_info.get('f_high_hz', 0):.0f} Hz"
+        act_pill = "<span class='pill pass'>Active</span>" if active else "<span class='pill na'>Inactive</span>"
+        band_rows.append(
+            f"<tr><th>{html.escape(b_name.replace('_', ' ').title())}</th>"
+            f"<td>{range_str}</td><td>{exp_str}</td><td>{act_str}</td>"
+            f"<td><strong>{delta_str}</strong></td><td>{act_pill}</td></tr>"
+        )
+    band_section = (
+        f'<section><h2>Acoustic Frequency Bands (Welch PSD)</h2><div class="card">'
+        f'<table><thead><tr><th>Band</th><th>Range</th><th>Expected</th><th>Actual</th><th>Delta</th><th>Energy</th></tr></thead>'
+        f'<tbody>{"".join(band_rows)}</tbody></table>'
+        f'<p class="muted small">Bands below -90 dBFS in both renders are marked Inactive to avoid reporting quantization noise.</p>'
+        f'</div></section>'
+        if band_rows
+        else ""
     )
+
     raw_json = html.escape(json.dumps({"metrics": metrics, "evaluation": evaluation}, indent=2, allow_nan=False))
     waveform = _waveform_svg(expected, actual, int(metrics["sample_rate_hz"]))
     title = "AudioBench Comparison Report"
@@ -164,6 +217,7 @@ legend {{ color:#64748b; font-size:.9rem; }}
 .swatch:first-child {{ margin-left:0; }}
 pre {{ white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:440px; overflow:auto; }}
 .muted {{ color:#64748b; }}
+.small {{ font-size:.8rem; margin-top:4px; }}
 @media (max-width:600px) {{ body {{ padding:18px 12px 36px; }} th,td {{ padding:7px 5px; }} }}
 </style>
 </head>
@@ -175,6 +229,7 @@ pre {{ white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height
 <section><h2>Quality gates</h2><div class="card"><table><thead><tr><th>Check</th><th>Status</th><th>Details</th></tr></thead><tbody>{''.join(checks)}</tbody></table></div></section>
 <section><h2>Waveform overview</h2><div class="card"><p><span class="swatch" style="background:#2563eb"></span>Expected <span class="swatch" style="background:#ea580c"></span>Actual</p>{waveform}<p class="muted">Waveforms are folded down to mono for display only. The metrics below use all channels. Latency estimation can be ambiguous for periodic signals.</p></div></section>
 <section><h2>Metrics</h2><div class="card"><table class="metrics"><tbody>{metric_rows}</tbody></table></div></section>
+{band_section}
 <section><h2>Machine-readable result</h2><div class="card"><pre>{raw_json}</pre></div></section>
 <section><p class="muted">Generated by AudioBench. This report compares offline audio renders; it does not load or execute plugin binaries.</p></section>
 </body></html>"""

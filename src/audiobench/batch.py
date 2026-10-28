@@ -15,7 +15,15 @@ from .metrics import Thresholds, compare_arrays, evaluate_thresholds
 from .report import write_batch_html_summary, write_html_report
 
 VALID_THRESHOLD_KEYS = frozenset(
-    {"min_snr_db", "max_delay_ms", "max_duration_delta_ms", "max_error_dbfs"}
+    {
+        "min_snr_db",
+        "max_delay_ms",
+        "max_duration_delta_ms",
+        "max_error_dbfs",
+        "max_band_delta_db",
+        "max_thd_db",
+        "max_true_peak_dbfs",
+    }
 )
 VALID_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_\-]+$")
 
@@ -133,6 +141,9 @@ def merge_thresholds(base: Thresholds, overrides: dict[str, float] | None) -> Th
         max_delay_ms=overrides.get("max_delay_ms", base.max_delay_ms),
         max_duration_delta_ms=overrides.get("max_duration_delta_ms", base.max_duration_delta_ms),
         max_error_dbfs=overrides.get("max_error_dbfs", base.max_error_dbfs),
+        max_band_delta_db=overrides.get("max_band_delta_db", base.max_band_delta_db),
+        max_thd_db=overrides.get("max_thd_db", base.max_thd_db),
+        max_true_peak_dbfs=overrides.get("max_true_peak_dbfs", base.max_true_peak_dbfs),
     )
 
 

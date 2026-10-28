@@ -9,7 +9,10 @@
     "min_snr_db": 60.0,
     "max_delay_ms": 0.5,
     "max_duration_delta_ms": 1.0,
-    "max_error_dbfs": -80.0
+    "max_error_dbfs": -80.0,
+    "max_band_delta_db": null,
+    "max_thd_db": null,
+    "max_true_peak_dbfs": null
   },
   "metrics": {
     "sample_rate_hz": 48000,
@@ -21,6 +24,8 @@
     "duration_delta_ms": 0.0,
     "expected_peak_dbfs": -9.118638521315232,
     "actual_peak_dbfs": -9.118638521315232,
+    "expected_true_peak_dbtp": -8.504772724547252,
+    "actual_true_peak_dbtp": -8.504772724547252,
     "expected_rms_dbfs": -21.4403455778291,
     "actual_rms_dbfs": -21.463373076874632,
     "peak_delta_db": 0.0,
@@ -38,7 +43,95 @@
     "aligned_snr_db": null,
     "aligned_samples_identical": true,
     "identical_samples": false,
-    "duration_match": true
+    "duration_match": true,
+    "band_analysis": {
+      "bands": {
+        "sub_bass": {
+          "f_low_hz": 20.0,
+          "f_high_hz": 60.0,
+          "active": true,
+          "expected_dbfs": -49.59743064348422,
+          "actual_dbfs": -49.71632240825403,
+          "delta_db": -0.11889176476980763
+        },
+        "bass": {
+          "f_low_hz": 60.0,
+          "f_high_hz": 250.0,
+          "active": true,
+          "expected_dbfs": -42.63010688032423,
+          "actual_dbfs": -42.639068163675574,
+          "delta_db": -0.008961283351346673
+        },
+        "low_mid": {
+          "f_low_hz": 250.0,
+          "f_high_hz": 500.0,
+          "active": true,
+          "expected_dbfs": -41.43929291031785,
+          "actual_dbfs": -41.410483966427954,
+          "delta_db": 0.028808943889894915
+        },
+        "mid": {
+          "f_low_hz": 500.0,
+          "f_high_hz": 2000.0,
+          "active": true,
+          "expected_dbfs": -33.33697920124663,
+          "actual_dbfs": -33.30447255274188,
+          "delta_db": 0.032506648504756534
+        },
+        "high_mid": {
+          "f_low_hz": 2000.0,
+          "f_high_hz": 4000.0,
+          "active": true,
+          "expected_dbfs": -32.129946205993704,
+          "actual_dbfs": -32.15337834110234,
+          "delta_db": -0.023432135108634747
+        },
+        "presence": {
+          "f_low_hz": 4000.0,
+          "f_high_hz": 6000.0,
+          "active": true,
+          "expected_dbfs": -32.1516891215964,
+          "actual_dbfs": -32.15042233244754,
+          "delta_db": 0.0012667891488602808
+        },
+        "brilliance": {
+          "f_low_hz": 6000.0,
+          "f_high_hz": 20000.0,
+          "active": true,
+          "expected_dbfs": -23.845925141302953,
+          "actual_dbfs": -23.843363408151873,
+          "delta_db": 0.0025617331510787954
+        }
+      },
+      "max_abs_band_delta_db": 0.11889176476980763
+    },
+    "max_abs_band_delta_db": 0.11889176476980763,
+    "expected_thd": {
+      "is_sinusoidal": false,
+      "reason": "Signal is non-sinusoidal (fundamental not dominant)",
+      "fundamental_hz": 14224.728223270318,
+      "thd_db": null,
+      "thd_percent": null,
+      "thdn_db": null
+    },
+    "actual_thd": {
+      "is_sinusoidal": false,
+      "reason": "Signal is non-sinusoidal (fundamental not dominant)",
+      "fundamental_hz": 14224.739122122717,
+      "thd_db": null,
+      "thd_percent": null,
+      "thdn_db": null
+    },
+    "dsp_health": {
+      "has_dc_offset": false,
+      "dc_offset_amplitude": -1.3635014494260153e-05,
+      "dc_offset_dbfs": -97.3068879211887,
+      "subnormals_count": 0,
+      "clipped_samples_count": 0,
+      "clipped_samples_ratio": 0.0,
+      "all_finite": true,
+      "healthy": true
+    }
   },
   "evaluation": {
     "status": "FAIL",

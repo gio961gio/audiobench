@@ -146,3 +146,29 @@ def test_cli_batch_invalid_manifest_exit_code(tmp_path, capsys):
     assert exit_code == 2
     captured = capsys.readouterr()
     assert "error in manifest:" in captured.err
+
+
+def test_cli_compare_with_milestone2_options(tmp_path, capsys):
+    audio_path = tmp_path / "sample.wav"
+    data = np.sin(np.linspace(0, 10, 4800, dtype=np.float64))[:, None] * 0.5
+    write_audio(audio_path, data, 48_000)
+
+    exit_code = main(
+        [
+            "compare",
+            "--expected",
+            str(audio_path),
+            "--actual",
+            str(audio_path),
+            "--max-band-delta-db",
+            "1.5",
+            "--max-thd-db",
+            "-20.0",
+            "--max-true-peak-dbfs",
+            "0.0",
+        ]
+    )
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert "AudioBench result: PASS" in captured.out
+    assert "True-Peak:" in captured.out

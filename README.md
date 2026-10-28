@@ -10,12 +10,16 @@ AudioBench compares an expected/reference render with an actual render, computes
 
 - Deterministic test stimuli: impulse, 1 kHz sine, logarithmic sweep, seeded white noise, and silence.
 - Reference-vs-actual comparison without silently resampling files.
-- Duration, peak and RMS levels, RMS error, SNR, relative error, sample correlation, maximum sample error, mean spectral-magnitude delta, gain-normalized spectral-shape error, and an estimated sample delay.
-- Independent quality gates for fidelity, latency, and duration.
+- Duration, peak and RMS levels, RMS error, SNR, relative error, sample correlation, maximum sample error, mean spectral-magnitude delta, and gain-normalized spectral-shape error.
+- **7-band acoustic frequency response analysis** (Welch PSD) with active-band clamping to avoid spurious quantization noise in silent regions.
+- **THD and THD+N harmonic distortion analysis** using 4-term Blackman-Harris windowing and parabolic peak interpolation on sinusoidal renders.
+- **True-Peak estimation** compliant with ITU-R BS.1770-4 (4x/2x oversampling) detecting inter-sample peaks.
+- **DSP numerical health diagnostics**: automated detection of DC offset, single-precision subnormal/denormal floats, and sample clipping.
+- Independent quality gates for fidelity, latency, duration, frequency bands (`max_band_delta_db`), distortion (`max_thd_db`), and True-Peak (`max_true_peak_dbfs`).
 - Batch test suite execution from a JSON manifest with fault isolation, relative path resolution, and per-test threshold overrides.
-- Standalone HTML reports (per-test and suite summary dashboard) with waveform overview and embedded JSON results.
+- Standalone HTML reports (per-test and suite summary dashboard) with waveform overview, frequency band table, and embedded JSON results.
 - CLI exit codes suitable for local scripts and CI: `0` for PASS/WARN, `1` for FAIL/ERROR, `2` for invalid input/runtime/manifest error. Use `--fail-on-warn` to make warnings fail a CI job.
-- Comprehensive unit tests for deterministic signals, comparison metrics, delay sign, batch manifests, error isolation, and CLI exit codes.
+- Comprehensive unit tests covering DSP algorithms, comparison metrics, delay sign, batch manifests, error isolation, and CLI exit codes.
 
 ## Quick start
 
@@ -185,8 +189,8 @@ The unit tests use generated arrays and temporary WAV files, so they do not requ
 Upcoming milestones:
 
 1. [x] **Batch/manifest mode:** suite execution from JSON manifests with per-test thresholds and aggregated HTML/JSON reporting.
-2. [ ] **Calibrated frequency-response checks:** estimate response from a sweep or known broadband input and report band-wise deviations. (The current MVP exposes diagnostic magnitude-spectrum metrics only.)
-3. [ ] **THD+N test protocol:** add a calibrated sine-based analyzer with clear limits and test-signal requirements.
+2. [x] **Band-wise frequency-response checks:** Welch PSD analysis across 7 acoustic bands with noise-floor clamping.
+3. [x] **THD+N & True-Peak test protocol:** calibrated sine-based harmonic distortion analyzer and ITU-R BS.1770-4 inter-sample peak measurement.
 4. [ ] **Plugin adapter:** automate offline renders for one chosen host/format, starting with an open test plugin or a JUCE test harness.
 5. [ ] **CI integration:** publish HTML and JSON reports as artifacts on every commit.
 6. [ ] **Benchmark history:** track render metrics over time and show regressions across builds.

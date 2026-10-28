@@ -8,6 +8,13 @@ from typing import Any
 import numpy as np
 from scipy.signal import correlate, correlation_lags
 
+from .analysis import (
+    analyze_band_deviations,
+    analyze_thd,
+    check_dsp_health,
+    compute_true_peak,
+)
+
 EPSILON = 1e-15
 
 
@@ -19,6 +26,9 @@ class Thresholds:
     max_delay_ms: float = 0.5
     max_duration_delta_ms: float = 1.0
     max_error_dbfs: float = -80.0
+    max_band_delta_db: float | None = None
+    max_thd_db: float | None = None
+    max_true_peak_dbfs: float | None = None
 
 
 def _rms(data: np.ndarray) -> float:
@@ -246,6 +256,15 @@ def compare_arrays(
 
     corr = _corrcoef(raw_expected, raw_actual)
     spectral_delta, spectral_shape_error = _spectral_differences(raw_expected, raw_actual)
+
+    # Advanced DSP diagnostics (Milestone 2)
+    band_analysis = analyze_band_deviations(expected, actual, sample_rate)
+    expected_tp_dbtp, _ = compute_true_peak(expected, sample_rate)
+    actual_tp_dbtp, _ = compute_true_peak(actual, sample_rate)
+    expected_thd = analyze_thd(expected, sample_rate)
+    actual_thd = analyze_thd(actual, sample_rate)
+    actual_health = check_dsp_health(actual)
+
     return {
         "sample_rate_hz": int(sample_rate),
         "channels": int(channels),
@@ -256,6 +275,8 @@ def compare_arrays(
         "duration_delta_ms": float((actual_frames - expected_frames) / sample_rate * 1000.0),
         "expected_peak_dbfs": _dbfs(expected_peak),
         "actual_peak_dbfs": _dbfs(actual_peak),
+        "expected_true_peak_dbtp": expected_tp_dbtp,
+        "actual_true_peak_dbtp": actual_tp_dbtp,
         "expected_rms_dbfs": _dbfs(_rms(expected)),
         "actual_rms_dbfs": _dbfs(_rms(actual)),
         "peak_delta_db": (
@@ -284,6 +305,11 @@ def compare_arrays(
         "aligned_samples_identical": bool(aligned_identical),
         "identical_samples": bool(identical),
         "duration_match": bool(expected_frames == actual_frames),
+        "band_analysis": band_analysis,
+        "max_abs_band_delta_db": band_analysis.get("max_abs_band_delta_db"),
+        "expected_thd": expected_thd,
+        "actual_thd": actual_thd,
+        "dsp_health": actual_health,
     }
 
 
@@ -366,6 +392,71 @@ def evaluate_thresholds(
         "message": fidelity_message,
     }
 
+    # Optional Gate: Frequency Band Deviation
+    if limits.max_band_delta_db is not None:
+        observed_band_delta = metrics.get("max_abs_band_delta_db")
+        if observed_band_delta is None:
+            checks["frequency_bands"] = {
+                "status": "N/A",
+                "observed": None,
+                "limit": limits.max_band_delta_db,
+                "message": "No active frequency bands detected to measure deviation.",
+            }
+        else:
+            band_pass = float(observed_band_delta) <= limits.max_band_delta_db
+            checks["frequency_bands"] = {
+                "status": "PASS" if band_pass else "FAIL",
+                "observed": float(observed_band_delta),
+                "limit": limits.max_band_delta_db,
+                "message": "Maximum band-wise deviation is within tolerance."
+                if band_pass
+                else f"Maximum band deviation ({observed_band_delta:.2f} dB) exceeds limit ({limits.max_band_delta_db:.2f} dB).",
+            }
+
+    # Optional Gate: THD
+    if limits.max_thd_db is not None:
+        thd_info = metrics.get("actual_thd") or {}
+        if thd_info.get("is_sinusoidal") and thd_info.get("thd_db") is not None:
+            observed_thd = float(thd_info["thd_db"])
+            thd_pass = observed_thd <= limits.max_thd_db
+            checks["distortion_thd"] = {
+                "status": "PASS" if thd_pass else "FAIL",
+                "observed": observed_thd,
+                "limit": limits.max_thd_db,
+                "message": "THD meets the configured limit."
+                if thd_pass
+                else f"THD ({observed_thd:.2f} dB) exceeds limit ({limits.max_thd_db:.2f} dB).",
+            }
+        else:
+            checks["distortion_thd"] = {
+                "status": "N/A",
+                "observed": None,
+                "limit": limits.max_thd_db,
+                "message": "Signal is not sinusoidal; harmonic distortion check not applicable.",
+            }
+
+    # Optional Gate: True-Peak
+    if limits.max_true_peak_dbfs is not None:
+        tp_val = metrics.get("actual_true_peak_dbtp")
+        if tp_val is not None:
+            tp_pass = float(tp_val) <= limits.max_true_peak_dbfs
+            checks["true_peak"] = {
+                "status": "PASS" if tp_pass else "FAIL",
+                "observed": float(tp_val),
+                "limit": limits.max_true_peak_dbfs,
+                "message": "True-Peak is within configured ceiling."
+                if tp_pass
+                else f"True-Peak ({tp_val:.2f} dBTP) exceeds limit ({limits.max_true_peak_dbfs:.2f} dBTP).",
+            }
+        else:
+            checks["true_peak"] = {
+                "status": "N/A",
+                "observed": None,
+                "limit": limits.max_true_peak_dbfs,
+                "message": "True-Peak not measurable.",
+            }
+
     statuses = [item["status"] for item in checks.values()]
     overall = "FAIL" if "FAIL" in statuses else ("WARN" if "WARN" in statuses else "PASS")
+    return {"status": overall, "checks": checks}
     return {"status": overall, "checks": checks}

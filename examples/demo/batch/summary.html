@@ -114,6 +114,8 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
         &quot;duration_delta_ms&quot;: 0.0,
         &quot;expected_peak_dbfs&quot;: -9.118638521315232,
         &quot;actual_peak_dbfs&quot;: -9.118638521315232,
+        &quot;expected_true_peak_dbtp&quot;: -8.504772724547252,
+        &quot;actual_true_peak_dbtp&quot;: -8.504772724547252,
         &quot;expected_rms_dbfs&quot;: -21.4403455778291,
         &quot;actual_rms_dbfs&quot;: -21.4403455778291,
         &quot;peak_delta_db&quot;: 0.0,
@@ -131,7 +133,95 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
         &quot;aligned_snr_db&quot;: null,
         &quot;aligned_samples_identical&quot;: true,
         &quot;identical_samples&quot;: true,
-        &quot;duration_match&quot;: true
+        &quot;duration_match&quot;: true,
+        &quot;band_analysis&quot;: {
+          &quot;bands&quot;: {
+            &quot;sub_bass&quot;: {
+              &quot;f_low_hz&quot;: 20.0,
+              &quot;f_high_hz&quot;: 60.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -49.59743064348422,
+              &quot;actual_dbfs&quot;: -49.59743064348422,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;bass&quot;: {
+              &quot;f_low_hz&quot;: 60.0,
+              &quot;f_high_hz&quot;: 250.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -42.63010688032423,
+              &quot;actual_dbfs&quot;: -42.63010688032423,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;low_mid&quot;: {
+              &quot;f_low_hz&quot;: 250.0,
+              &quot;f_high_hz&quot;: 500.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -41.43929291031785,
+              &quot;actual_dbfs&quot;: -41.43929291031785,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;mid&quot;: {
+              &quot;f_low_hz&quot;: 500.0,
+              &quot;f_high_hz&quot;: 2000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -33.33697920124663,
+              &quot;actual_dbfs&quot;: -33.33697920124663,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;high_mid&quot;: {
+              &quot;f_low_hz&quot;: 2000.0,
+              &quot;f_high_hz&quot;: 4000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -32.129946205993704,
+              &quot;actual_dbfs&quot;: -32.129946205993704,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;presence&quot;: {
+              &quot;f_low_hz&quot;: 4000.0,
+              &quot;f_high_hz&quot;: 6000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -32.1516891215964,
+              &quot;actual_dbfs&quot;: -32.1516891215964,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;brilliance&quot;: {
+              &quot;f_low_hz&quot;: 6000.0,
+              &quot;f_high_hz&quot;: 20000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -23.845925141302953,
+              &quot;actual_dbfs&quot;: -23.845925141302953,
+              &quot;delta_db&quot;: 0.0
+            }
+          },
+          &quot;max_abs_band_delta_db&quot;: 0.0
+        },
+        &quot;max_abs_band_delta_db&quot;: 0.0,
+        &quot;expected_thd&quot;: {
+          &quot;is_sinusoidal&quot;: false,
+          &quot;reason&quot;: &quot;Signal is non-sinusoidal (fundamental not dominant)&quot;,
+          &quot;fundamental_hz&quot;: 14224.728223270318,
+          &quot;thd_db&quot;: null,
+          &quot;thd_percent&quot;: null,
+          &quot;thdn_db&quot;: null
+        },
+        &quot;actual_thd&quot;: {
+          &quot;is_sinusoidal&quot;: false,
+          &quot;reason&quot;: &quot;Signal is non-sinusoidal (fundamental not dominant)&quot;,
+          &quot;fundamental_hz&quot;: 14224.728223270318,
+          &quot;thd_db&quot;: null,
+          &quot;thd_percent&quot;: null,
+          &quot;thdn_db&quot;: null
+        },
+        &quot;dsp_health&quot;: {
+          &quot;has_dc_offset&quot;: false,
+          &quot;dc_offset_amplitude&quot;: -5.922218163808187e-08,
+          &quot;dc_offset_dbfs&quot;: -144.5503119605728,
+          &quot;subnormals_count&quot;: 0,
+          &quot;clipped_samples_count&quot;: 0,
+          &quot;clipped_samples_ratio&quot;: 0.0,
+          &quot;all_finite&quot;: true,
+          &quot;healthy&quot;: true
+        }
       },
       &quot;evaluation&quot;: {
         &quot;status&quot;: &quot;PASS&quot;,
@@ -160,7 +250,10 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
         &quot;min_snr_db&quot;: 60.0,
         &quot;max_delay_ms&quot;: 0.5,
         &quot;max_duration_delta_ms&quot;: 1.0,
-        &quot;max_error_dbfs&quot;: -80.0
+        &quot;max_error_dbfs&quot;: -80.0,
+        &quot;max_band_delta_db&quot;: null,
+        &quot;max_thd_db&quot;: null,
+        &quot;max_true_peak_dbfs&quot;: null
       },
       &quot;html_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\identical-render.html&quot;,
       &quot;json_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\identical-render.json&quot;
@@ -182,6 +275,8 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
         &quot;duration_delta_ms&quot;: 0.0,
         &quot;expected_peak_dbfs&quot;: -9.118638521315232,
         &quot;actual_peak_dbfs&quot;: -9.118638521315232,
+        &quot;expected_true_peak_dbtp&quot;: -8.504772724547252,
+        &quot;actual_true_peak_dbtp&quot;: -8.504772724547252,
         &quot;expected_rms_dbfs&quot;: -21.4403455778291,
         &quot;actual_rms_dbfs&quot;: -21.463373076874632,
         &quot;peak_delta_db&quot;: 0.0,
@@ -199,7 +294,95 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
         &quot;aligned_snr_db&quot;: null,
         &quot;aligned_samples_identical&quot;: true,
         &quot;identical_samples&quot;: false,
-        &quot;duration_match&quot;: true
+        &quot;duration_match&quot;: true,
+        &quot;band_analysis&quot;: {
+          &quot;bands&quot;: {
+            &quot;sub_bass&quot;: {
+              &quot;f_low_hz&quot;: 20.0,
+              &quot;f_high_hz&quot;: 60.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -49.59743064348422,
+              &quot;actual_dbfs&quot;: -49.71632240825403,
+              &quot;delta_db&quot;: -0.11889176476980763
+            },
+            &quot;bass&quot;: {
+              &quot;f_low_hz&quot;: 60.0,
+              &quot;f_high_hz&quot;: 250.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -42.63010688032423,
+              &quot;actual_dbfs&quot;: -42.639068163675574,
+              &quot;delta_db&quot;: -0.008961283351346673
+            },
+            &quot;low_mid&quot;: {
+              &quot;f_low_hz&quot;: 250.0,
+              &quot;f_high_hz&quot;: 500.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -41.43929291031785,
+              &quot;actual_dbfs&quot;: -41.410483966427954,
+              &quot;delta_db&quot;: 0.028808943889894915
+            },
+            &quot;mid&quot;: {
+              &quot;f_low_hz&quot;: 500.0,
+              &quot;f_high_hz&quot;: 2000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -33.33697920124663,
+              &quot;actual_dbfs&quot;: -33.30447255274188,
+              &quot;delta_db&quot;: 0.032506648504756534
+            },
+            &quot;high_mid&quot;: {
+              &quot;f_low_hz&quot;: 2000.0,
+              &quot;f_high_hz&quot;: 4000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -32.129946205993704,
+              &quot;actual_dbfs&quot;: -32.15337834110234,
+              &quot;delta_db&quot;: -0.023432135108634747
+            },
+            &quot;presence&quot;: {
+              &quot;f_low_hz&quot;: 4000.0,
+              &quot;f_high_hz&quot;: 6000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -32.1516891215964,
+              &quot;actual_dbfs&quot;: -32.15042233244754,
+              &quot;delta_db&quot;: 0.0012667891488602808
+            },
+            &quot;brilliance&quot;: {
+              &quot;f_low_hz&quot;: 6000.0,
+              &quot;f_high_hz&quot;: 20000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -23.845925141302953,
+              &quot;actual_dbfs&quot;: -23.843363408151873,
+              &quot;delta_db&quot;: 0.0025617331510787954
+            }
+          },
+          &quot;max_abs_band_delta_db&quot;: 0.11889176476980763
+        },
+        &quot;max_abs_band_delta_db&quot;: 0.11889176476980763,
+        &quot;expected_thd&quot;: {
+          &quot;is_sinusoidal&quot;: false,
+          &quot;reason&quot;: &quot;Signal is non-sinusoidal (fundamental not dominant)&quot;,
+          &quot;fundamental_hz&quot;: 14224.728223270318,
+          &quot;thd_db&quot;: null,
+          &quot;thd_percent&quot;: null,
+          &quot;thdn_db&quot;: null
+        },
+        &quot;actual_thd&quot;: {
+          &quot;is_sinusoidal&quot;: false,
+          &quot;reason&quot;: &quot;Signal is non-sinusoidal (fundamental not dominant)&quot;,
+          &quot;fundamental_hz&quot;: 14224.739122122717,
+          &quot;thd_db&quot;: null,
+          &quot;thd_percent&quot;: null,
+          &quot;thdn_db&quot;: null
+        },
+        &quot;dsp_health&quot;: {
+          &quot;has_dc_offset&quot;: false,
+          &quot;dc_offset_amplitude&quot;: -1.3635014494260153e-05,
+          &quot;dc_offset_dbfs&quot;: -97.3068879211887,
+          &quot;subnormals_count&quot;: 0,
+          &quot;clipped_samples_count&quot;: 0,
+          &quot;clipped_samples_ratio&quot;: 0.0,
+          &quot;all_finite&quot;: true,
+          &quot;healthy&quot;: true
+        }
       },
       &quot;evaluation&quot;: {
         &quot;status&quot;: &quot;FAIL&quot;,
@@ -228,7 +411,10 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
         &quot;min_snr_db&quot;: 60.0,
         &quot;max_delay_ms&quot;: 0.5,
         &quot;max_duration_delta_ms&quot;: 1.0,
-        &quot;max_error_dbfs&quot;: -80.0
+        &quot;max_error_dbfs&quot;: -80.0,
+        &quot;max_band_delta_db&quot;: null,
+        &quot;max_thd_db&quot;: null,
+        &quot;max_true_peak_dbfs&quot;: null
       },
       &quot;html_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\delayed-render.html&quot;,
       &quot;json_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\delayed-render.json&quot;
