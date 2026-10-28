@@ -273,7 +273,7 @@ def run_batch(
                             "description": test.description,
                             "expected_path": str(resolved_expected),
                             "actual_path": str(resolved_actual),
-                            "thresholds": limits.__dict__,
+                            "thresholds": asdict(limits),
                             "metrics": metrics,
                             "evaluation": evaluation,
                         },
