@@ -5,6 +5,7 @@
   "description": "Artificial 2.5 ms delay exceeding 0.5 ms tolerance (FAIL)",
   "expected_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav",
   "actual_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\render_delayed_2_5ms.wav",
+  "input_path": null,
   "thresholds": {
     "min_snr_db": 60.0,
     "max_delay_ms": 0.5,
@@ -124,7 +125,7 @@
     },
     "dsp_health": {
       "has_dc_offset": false,
-      "dc_offset_amplitude": -1.3635014494260153e-05,
+      "dc_offset_amplitude": 1.3635014494260153e-05,
       "dc_offset_dbfs": -97.3068879211887,
       "subnormals_count": 0,
       "clipped_samples_count": 0,

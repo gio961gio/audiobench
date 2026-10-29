@@ -18,6 +18,19 @@
       "description": "Artificial 2.5 ms delay exceeding 0.5 ms tolerance (FAIL)",
       "expected": "reference_white_noise.wav",
       "actual": "render_delayed_2_5ms.wav"
+    },
+    {
+      "id": "dynamic-gain-render",
+      "description": "Deterministic white noise rendered dynamically via built-in DSP (PASS)",
+      "expected": "reference_white_noise.wav",
+      "input": "reference_white_noise.wav",
+      "plugin": {
+        "type": "builtin",
+        "effect": "gain",
+        "parameters": {
+          "gain_db": 0.0
+        }
+      }
     }
   ]
 }

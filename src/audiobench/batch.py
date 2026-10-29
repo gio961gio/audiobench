@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import math
 import re
@@ -12,6 +13,7 @@ from typing import Any
 from . import __version__
 from .audio import load_audio
 from .metrics import Thresholds, compare_arrays, evaluate_thresholds
+from .plugins import get_plugin_adapter
 from .report import write_batch_html_summary, write_html_report
 
 VALID_THRESHOLD_KEYS = frozenset(
@@ -40,9 +42,11 @@ class TestCaseConfig:
 
     id: str
     expected: str
-    actual: str
+    actual: str | None = None
+    input: str | None = None
     description: str | None = None
     thresholds: dict[str, float] | None = None
+    plugin: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -52,6 +56,7 @@ class BatchManifest:
     name: str
     thresholds: Thresholds
     tests: list[TestCaseConfig]
+    plugin: dict[str, Any] | None = None
 
 
 @dataclass
@@ -64,6 +69,7 @@ class TestCaseResult:
     expected_path: str
     actual_path: str
     status: str  # "PASS", "WARN", "FAIL", "ERROR"
+    input_path: str | None = None
     description: str | None = None
     error_message: str | None = None
     metrics: dict[str, Any] | None = None
@@ -147,6 +153,41 @@ def merge_thresholds(base: Thresholds, overrides: dict[str, float] | None) -> Th
     )
 
 
+def merge_plugin_configs(
+    suite_plugin: dict[str, Any] | None,
+    test_plugin: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Return merged plugin configuration.
+
+    - If neither is provided, returns None.
+    - If only one is provided, returns a deep copy of it.
+    - If both are provided:
+      - If test_plugin defines a different 'type', it completely overrides suite_plugin.
+      - Otherwise, suite_plugin is inherited, test_plugin fields override, and
+        'parameters' dictionaries are merged ({**suite_params, **test_params}).
+    """
+    if not suite_plugin and not test_plugin:
+        return None
+    if not suite_plugin:
+        return copy.deepcopy(test_plugin)
+    if not test_plugin:
+        return copy.deepcopy(suite_plugin)
+
+    suite_type = suite_plugin.get("type")
+    test_type = test_plugin.get("type")
+    if test_type is not None and test_type != suite_type:
+        return copy.deepcopy(test_plugin)
+
+    merged = copy.deepcopy(suite_plugin)
+    for k, v in test_plugin.items():
+        if k == "parameters" and isinstance(v, dict):
+            base_params = merged.get("parameters") or {}
+            merged["parameters"] = {**base_params, **v}
+        else:
+            merged[k] = copy.deepcopy(v)
+    return merged
+
+
 def load_manifest(path: str | Path) -> BatchManifest:
     """Read and validate a batch manifest JSON file."""
     manifest_file = Path(path)
@@ -174,6 +215,12 @@ def load_manifest(path: str | Path) -> BatchManifest:
     if "thresholds" in raw:
         parsed_suite_thresh = _validate_threshold_dict(raw["thresholds"], "Suite level")
         suite_thresholds = merge_thresholds(suite_thresholds, parsed_suite_thresh)
+
+    suite_plugin: dict[str, Any] | None = None
+    if "plugin" in raw:
+        if not isinstance(raw["plugin"], dict):
+            raise ManifestError(f"Suite 'plugin' must be an object/dict, got {type(raw['plugin']).__name__}")
+        suite_plugin = raw["plugin"]
 
     raw_tests = raw.get("tests")
     if not isinstance(raw_tests, list) or len(raw_tests) == 0:
@@ -203,8 +250,22 @@ def load_manifest(path: str | Path) -> BatchManifest:
             raise ManifestError(f"{ctx} ('{test_id}') missing valid 'expected' audio path")
 
         actual = item.get("actual")
-        if not isinstance(actual, str) or not actual.strip():
+        if actual is not None and (not isinstance(actual, str) or not actual.strip()):
             raise ManifestError(f"{ctx} ('{test_id}') missing valid 'actual' audio path")
+
+        input_path = item.get("input")
+        if input_path is not None and (not isinstance(input_path, str) or not input_path.strip()):
+            raise ManifestError(f"{ctx} ('{test_id}') missing valid 'input' audio path")
+
+        if not actual and not input_path:
+            raise ManifestError(f"{ctx} ('{test_id}') must specify either 'actual' or 'input' audio path")
+
+        test_plugin = item.get("plugin")
+        if test_plugin is not None and not isinstance(test_plugin, dict):
+            raise ManifestError(f"{ctx} ('{test_id}') 'plugin' must be an object/dict")
+
+        if input_path is not None and not test_plugin and not suite_plugin:
+            raise ManifestError(f"{ctx} ('{test_id}') specifies 'input' but no plugin is defined at test or suite level")
 
         desc = item.get("description")
         if desc is not None and not isinstance(desc, str):
@@ -219,12 +280,19 @@ def load_manifest(path: str | Path) -> BatchManifest:
                 id=test_id,
                 expected=expected,
                 actual=actual,
+                input=input_path,
                 description=desc,
                 thresholds=item_thresh,
+                plugin=test_plugin,
             )
         )
 
-    return BatchManifest(name=suite_name, thresholds=suite_thresholds, tests=test_configs)
+    return BatchManifest(
+        name=suite_name,
+        thresholds=suite_thresholds,
+        tests=test_configs,
+        plugin=suite_plugin,
+    )
 
 
 def resolve_path(base_dir: Path, target_path: str | Path) -> Path:
@@ -253,13 +321,43 @@ def run_batch(
 
     for test in manifest.tests:
         resolved_expected = resolve_path(base_dir, test.expected)
-        resolved_actual = resolve_path(base_dir, test.actual)
+        resolved_actual: Path | None = None
+        resolved_input: Path | None = None
         limits = merge_thresholds(manifest.thresholds, test.thresholds)
 
         # Fault isolation: an error in one test case must not prevent running the others.
         try:
             expected_data, expected_sr = load_audio(resolved_expected)
-            actual_data, actual_sr = load_audio(resolved_actual)
+
+            if test.input is not None:
+                resolved_input = resolve_path(base_dir, test.input)
+                input_data, input_sr = load_audio(resolved_input)
+
+                plugin_cfg = merge_plugin_configs(manifest.plugin, test.plugin)
+                if plugin_cfg is None:
+                    raise ManifestError(
+                        f"Test '{test.id}' specifies 'input' but no plugin configuration is available"
+                    )
+
+                adapter = get_plugin_adapter(plugin_cfg, base_dir=base_dir)
+                parameters = plugin_cfg.get("parameters")
+
+                if out_dir_path is not None:
+                    renders_dir = out_dir_path / "renders"
+                    renders_dir.mkdir(parents=True, exist_ok=True)
+                    resolved_actual = renders_dir / f"{test.id}_actual.wav"
+                    adapter.render_file(resolved_input, resolved_actual, input_sr, parameters)
+                    actual_data, actual_sr = load_audio(resolved_actual)
+                else:
+                    actual_data = adapter.render_array(input_data, input_sr, parameters)
+                    actual_sr = input_sr
+                    resolved_actual = Path(f"<rendered-in-memory:{test.id}>")
+            else:
+                if test.actual is None:
+                    raise ManifestError(f"Test '{test.id}' has neither 'actual' nor 'input'")
+                resolved_actual = resolve_path(base_dir, test.actual)
+                actual_data, actual_sr = load_audio(resolved_actual)
+
             if expected_sr != actual_sr:
                 raise ValueError(
                     f"Sample rate mismatch: expected file is {expected_sr} Hz, actual file is {actual_sr} Hz. "
@@ -284,6 +382,7 @@ def run_batch(
                             "description": test.description,
                             "expected_path": str(resolved_expected),
                             "actual_path": str(resolved_actual),
+                            "input_path": str(resolved_input) if resolved_input else None,
                             "thresholds": asdict(limits),
                             "metrics": metrics,
                             "evaluation": evaluation,
@@ -310,6 +409,7 @@ def run_batch(
                     expected_path=str(resolved_expected),
                     actual_path=str(resolved_actual),
                     status=case_status,
+                    input_path=str(resolved_input) if resolved_input else None,
                     description=test.description,
                     error_message=None,
                     metrics=metrics,
@@ -320,12 +420,14 @@ def run_batch(
                 )
             )
         except Exception as exc:  # Catch FileNotFoundError, ValueError, OSError, RuntimeError
+            actual_display = str(resolved_actual) if resolved_actual is not None else (test.actual or (f"<render:{test.id}>" if test.input else "unknown"))
             test_results.append(
                 TestCaseResult(
                     id=test.id,
                     expected_path=str(resolved_expected),
-                    actual_path=str(resolved_actual),
+                    actual_path=actual_display,
                     status="ERROR",
+                    input_path=str(resolved_input) if resolved_input else None,
                     description=test.description,
                     error_message=str(exc),
                     metrics=None,

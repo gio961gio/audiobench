@@ -4,11 +4,13 @@
 
 AudioBench compares an expected/reference render with an actual render, computes signal-level metrics, applies configurable quality gates, and produces a self-contained HTML report plus machine-readable JSON. It is designed as a small portfolio project that can be extended into automated DSP/plugin QA.
 
-> **Current scope:** AudioBench analyzes files that have already been rendered to WAV. It does not yet load or execute VST3/AU plugin binaries, control a DAW, resample inputs, or claim standards-compliant true-peak/THD measurements.
+> **Current scope:** AudioBench provides deterministic stimulus generation, offline audio comparison, quality gating, batch manifest execution, and headless audio plugin hosting / DSP offline rendering (VST3/AU via Pedalboard, pure-Python built-in DSP effects, and external CLI tools). It does not control interactive DAWs or silently resample audio.
 
 ## Features
 
 - Deterministic test stimuli: impulse, 1 kHz sine, logarithmic sweep, seeded white noise, and silence.
+- **Headless plugin hosting & offline DSP rendering** (`audiobench render`): render audio through VST3/AU plugins (via Spotify's Pedalboard), pure-Python DSP effects (gain, lowpass, highpass, delay, soft-clip), or arbitrary external CLI processors.
+- **Dynamic stimulus rendering in batch manifests**: specify `input` + `plugin` to render test cases on the fly before regression comparison, with parameter inheritance and override.
 - Reference-vs-actual comparison without silently resampling files.
 - Duration, peak and RMS levels, RMS error, SNR, relative error, sample correlation, maximum sample error, mean spectral-magnitude delta, and gain-normalized spectral-shape error.
 - **7-band acoustic frequency response analysis** (Welch PSD) with active-band clamping to avoid spurious quantization noise in silent regions.
@@ -19,7 +21,7 @@ AudioBench compares an expected/reference render with an actual render, computes
 - Batch test suite execution from a JSON manifest with fault isolation, relative path resolution, and per-test threshold overrides.
 - Standalone HTML reports (per-test and suite summary dashboard) with waveform overview, frequency band table, and embedded JSON results.
 - CLI exit codes suitable for local scripts and CI: `0` for PASS/WARN, `1` for FAIL/ERROR, `2` for invalid input/runtime/manifest error. Use `--fail-on-warn` to make warnings fail a CI job.
-- Comprehensive unit tests covering DSP algorithms, comparison metrics, delay sign, batch manifests, error isolation, and CLI exit codes.
+- Comprehensive unit tests covering DSP algorithms, comparison metrics, delay sign, batch manifests, error isolation, plugin adapters, and CLI exit codes.
 
 ## Quick start
 
@@ -45,12 +47,19 @@ audiobench compare \
   --report reports/comparison.html \
   --json reports/comparison.json
 
-# 5. Run a full regression suite from a JSON manifest
+# 5. Render offline audio through a plugin or DSP effect
+audiobench render \
+  --plugin gain \
+  --input examples/test_signals/sine_1k.wav \
+  --output examples/sine_gain.wav \
+  --params '{"gain_db": -6.0}'
+
+# 6. Run a full regression suite from a JSON manifest
 audiobench batch \
   --manifest examples/demo/demo_manifest.json \
   --output-dir reports/batch
 
-# 6. Run the tests
+# 7. Run the tests
 pytest
 ```
 
@@ -59,6 +68,7 @@ The CLI is also available without installing the console script:
 ```bash
 python -m audiobench --help
 python -m audiobench generate --help
+python -m audiobench render --help
 python -m audiobench compare --help
 python -m audiobench batch --help
 ```
@@ -75,6 +85,8 @@ audiobench batch \
 
 ### Manifest schema
 
+A manifest can compare pre-rendered WAV pairs (`expected` + `actual`) or render test stimuli dynamically (`expected` + `input` + `plugin`):
+
 ```json
 {
   "name": "dsp-regression-suite",
@@ -84,29 +96,39 @@ audiobench batch \
     "max_duration_delta_ms": 1.0,
     "max_error_dbfs": -80.0
   },
+  "plugin": {
+    "type": "builtin",
+    "effect": "gain",
+    "parameters": {
+      "gain_db": -6.0
+    }
+  },
   "tests": [
     {
       "id": "filter-bypass",
-      "description": "Bypass processing must preserve reference audio",
+      "description": "Bypass processing must preserve reference audio (pre-rendered)",
       "expected": "renders/ref_bypass.wav",
       "actual": "renders/test_bypass.wav"
     },
     {
-      "id": "delay-compensation",
-      "description": "Lookahead processing with dedicated latency tolerance",
-      "expected": "renders/ref_lookahead.wav",
-      "actual": "renders/test_lookahead.wav",
-      "thresholds": {
-        "max_delay_ms": 5.0
+      "id": "dynamic-gain-test",
+      "description": "Render stimulus on the fly through plugin and compare against expected",
+      "expected": "renders/expected_gain_minus_12.wav",
+      "input": "stimuli/sine_1k.wav",
+      "plugin": {
+        "parameters": {
+          "gain_db": -12.0
+        }
       }
     }
   ]
 }
 ```
 
-* **Relative paths:** `expected` and `actual` paths are resolved relative to the directory containing the manifest file.
-* **Threshold overrides:** Individual test cases inherit suite-level thresholds and can selectively override specific limits.
-* **Fault isolation:** An unreadable, corrupted, or incompatible WAV in one test case is recorded as `ERROR` without aborting the rest of the suite.
+* **Relative paths:** `expected`, `actual`, and `input` paths are resolved relative to the directory containing the manifest file.
+* **Dynamic rendering:** If `input` is specified, the file is rendered using the configured `plugin` adapter (supporting VST3/AU via Pedalboard, built-in pure Python DSP chains, or external CLI commands). Renders are saved in `<output-dir>/renders/<test_id>_actual.wav` (or processed in-memory when no output directory is set).
+* **Threshold and plugin overrides:** Individual test cases inherit suite-level thresholds and plugin configurations, selectively overriding parameters.
+* **Fault isolation:** An unreadable, corrupted, or failing render in one test case is recorded as `ERROR` without aborting the rest of the suite.
 * **Dashboard output:** Generates `<output-dir>/summary.html` and `<output-dir>/summary.json`, alongside individual HTML and JSON reports for each test case.
 
 ## Example workflow
@@ -161,18 +183,25 @@ Thresholds depend on the system under test. A nonlinear effect, analog-modeling 
 ## Architecture
 
 ```text
-WAV files / Manifest ──> audio.py / batch.py ──> metrics.py ──> threshold evaluation
-                                                       │                    │
-                                                       └────────────┬───────┘
-                                                                    v
-                                                         report.py (HTML + JSON)
-                                                                    │
-                                                                 cli.py
+WAV / Manifest / Input Stimulus
+             │
+             ├──> plugins.py (VST3 / AU / Builtin / CLI Rendering)
+             │        │
+             ▼        ▼
+       audio.py / batch.py ──> metrics.py / analysis.py ──> quality gates
+                                       │                           │
+                                       └───────────┬───────────────┘
+                                                   v
+                                        report.py (HTML + JSON)
+                                                   │
+                                                cli.py
 ```
 
 - `audio.py`: safe WAV loading/writing and deterministic stimuli.
-- `batch.py`: manifest parsing, fault-isolated suite runner, and path resolution.
-- `metrics.py`: sample-based metrics, delay estimate, and pass/fail gates.
+- `plugins.py`: headless plugin hosts (VST3/AU via Pedalboard, built-in pure Python DSP chains, external CLI tools).
+- `batch.py`: manifest parsing, fault-isolated suite runner, dynamic rendering orchestration, and path resolution.
+- `metrics.py`: sample-based comparison metrics, cross-correlation delay estimation, and quality gate evaluations.
+- `analysis.py`: 7-band acoustic Welch PSD, harmonic distortion analysis (THD/THD+N), True-Peak oversampling, and DSP numerical sanity checks.
 - `report.py`: standalone per-test and summary dashboard HTML reports; no CDN or browser-side dependencies.
 - `cli.py`: command-line entry point with CI-friendly exit codes (`0`, `1`, `2`).
 
@@ -182,7 +211,7 @@ WAV files / Manifest ──> audio.py / batch.py ──> metrics.py ──> thre
 pytest
 ```
 
-The unit tests use generated arrays and temporary WAV files, so they do not require external datasets or plugins.
+The unit tests use generated arrays, pure Python DSP algorithms, and temporary WAV files, avoiding external proprietary binaries.
 
 ## Roadmap
 
@@ -191,7 +220,7 @@ Upcoming milestones:
 1. [x] **Batch/manifest mode:** suite execution from JSON manifests with per-test thresholds and aggregated HTML/JSON reporting.
 2. [x] **Band-wise frequency-response checks:** Welch PSD analysis across 7 acoustic bands with noise-floor clamping.
 3. [x] **THD+N & True-Peak test protocol:** calibrated sine-based harmonic distortion analyzer and ITU-R BS.1770-4 inter-sample peak measurement.
-4. [ ] **Plugin adapter:** automate offline renders for one chosen host/format, starting with an open test plugin or a JUCE test harness.
+4. [x] **Plugin adapter & automated rendering:** headless VST3/AU host via Pedalboard, built-in pure Python DSP chains, CLI adapter, and `render` command.
 5. [ ] **CI integration:** publish HTML and JSON reports as artifacts on every commit.
 6. [ ] **Benchmark history:** track render metrics over time and show regressions across builds.
 
@@ -199,7 +228,7 @@ Do not market items on the roadmap as implemented features.
 
 ## Limitations
 
-- The initial implementation compares rendered files; it is not yet a plugin host or automated DAW controller.
+- Plugin execution operates headlessly for offline rendering; AudioBench does not control interactive GUI DAWs or graphical automation.
 - Sample rates and channel counts must match. The tool refuses silent resampling because it can mask test setup errors.
 - WAV files are decoded to floating point for analysis; the original integer bit depth is not treated as a quality metric.
 - Delay is an estimate from cross-correlation. Silence and periodic signals may not support an unambiguous estimate.

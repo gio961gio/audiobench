@@ -122,7 +122,7 @@
     },
     "dsp_health": {
       "has_dc_offset": false,
-      "dc_offset_amplitude": -5.922218163808187e-08,
+      "dc_offset_amplitude": 5.922218163808187e-08,
       "dc_offset_dbfs": -144.5503119605728,
       "subnormals_count": 0,
       "clipped_samples_count": 0,

@@ -13,6 +13,7 @@ from . import __version__
 from .audio import load_audio, write_test_signals
 from .batch import ManifestError, run_batch
 from .metrics import Thresholds, compare_arrays, evaluate_thresholds
+from .plugins import PluginError, get_plugin_adapter
 from .report import write_html_report
 
 
@@ -48,6 +49,27 @@ def _add_batch_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument("--fail-on-warn", action="store_true", help="Return exit code 1 for WARN as well as FAIL")
 
 
+def _add_render_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser("render", help="Render an audio file through a plugin or DSP chain offline")
+    parser.add_argument(
+        "--plugin",
+        required=True,
+        help="Plugin path (VST3/AU) or built-in effect name ('gain', 'lowpass', 'highpass', 'delay', 'soft_clip')",
+    )
+    parser.add_argument("--input", required=True, help="Input WAV file path")
+    parser.add_argument("--output", required=True, help="Output WAV file path")
+    parser.add_argument(
+        "--type",
+        choices=["vst3", "au", "builtin", "cli"],
+        default=None,
+        help="Plugin host type (default: inferred from --plugin)",
+    )
+    parser.add_argument(
+        "--params",
+        help="JSON string or path to JSON file containing plugin parameters",
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="audiobench",
@@ -58,6 +80,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_generate_parser(subparsers)
     _add_compare_parser(subparsers)
     _add_batch_parser(subparsers)
+    _add_render_parser(subparsers)
     return parser
 
 
@@ -187,6 +210,63 @@ def _run_batch(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_render(args: argparse.Namespace) -> int:
+    params: dict[str, Any] = {}
+    if args.params:
+        params_path = Path(args.params)
+        if params_path.exists() and params_path.is_file():
+            try:
+                params = json.loads(params_path.read_text(encoding="utf-8"))
+            except Exception as exc:
+                print(f"error: invalid JSON in parameters file '{params_path}': {exc}", file=sys.stderr)
+                return 2
+        else:
+            try:
+                params = json.loads(args.params)
+            except Exception as exc:
+                print(f"error: invalid JSON in --params: {exc}", file=sys.stderr)
+                return 2
+
+    plugin_type = args.type
+    if plugin_type is None:
+        p_str = args.plugin.lower()
+        if p_str.endswith(".vst3") or ".vst3" in p_str:
+            plugin_type = "vst3"
+        elif p_str.endswith(".component"):
+            plugin_type = "au"
+        elif p_str in ("gain", "lowpass", "highpass", "delay", "soft_clip"):
+            plugin_type = "builtin"
+        elif Path(args.plugin).exists():
+            plugin_type = "vst3"
+        else:
+            plugin_type = "builtin"
+
+    config: dict[str, Any] = {"type": plugin_type}
+    if plugin_type == "builtin":
+        config["effect"] = args.plugin
+        config["parameters"] = params
+    elif plugin_type in ("vst3", "au"):
+        config["path"] = args.plugin
+        config["parameters"] = params
+    elif plugin_type == "cli":
+        config["command"] = [args.plugin]
+        config["parameters"] = params
+
+    try:
+        input_path = Path(args.input)
+        if not input_path.exists():
+            raise FileNotFoundError(f"Input file not found: {input_path}")
+        _, sr = load_audio(input_path)
+        adapter = get_plugin_adapter(config)
+        output_file = adapter.render_file(input_path, args.output, sr, params)
+    except (PluginError, OSError, ValueError, RuntimeError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    print(f"Rendered: {output_file} ({sr} Hz)")
+    return 0
+
+
 def _human(value: float | None, unit: str, *, exact: bool = False) -> str:
     if exact:
         return "inf (sample-identical)"
@@ -204,6 +284,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_compare(args)
     if args.command == "batch":
         return _run_batch(args)
+    if args.command == "render":
+        return _run_render(args)
     parser.error(f"Unknown command: {args.command}")
     return 2
 

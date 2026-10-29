@@ -71,6 +71,35 @@ def run_batch(manifest: Path, output_dir: Path, expected_exit_code: int) -> None
         )
 
 
+def run_render(
+    plugin: str,
+    input_path: Path,
+    output_path: Path,
+    params: dict,
+    expected_exit_code: int = 0,
+) -> None:
+    command = [
+        sys.executable,
+        "-m",
+        "audiobench",
+        "render",
+        "--plugin",
+        plugin,
+        "--input",
+        str(input_path.relative_to(ROOT)),
+        "--output",
+        str(output_path.relative_to(ROOT)),
+        "--params",
+        json.dumps(params),
+    ]
+    completed = subprocess.run(command, cwd=ROOT, check=False, text=True)
+    if completed.returncode != expected_exit_code:
+        raise RuntimeError(
+            f"Unexpected exit code for render: got {completed.returncode}, "
+            f"expected {expected_exit_code}. Command: {' '.join(command)}"
+        )
+
+
 def main() -> int:
     DEMO_DIR.mkdir(parents=True, exist_ok=True)
     frames = int(round(SAMPLE_RATE * DURATION_S))
@@ -84,6 +113,7 @@ def main() -> int:
     reference_path = DEMO_DIR / "reference_white_noise.wav"
     identical_path = DEMO_DIR / "render_identical.wav"
     delayed_path = DEMO_DIR / "render_delayed_2_5ms.wav"
+    clipped_path = DEMO_DIR / "render_soft_clipped.wav"
     write_audio(reference_path, reference[:, None], SAMPLE_RATE)
     # Copying the reference WAV ensures a sample-identical control condition.
     shutil.copyfile(reference_path, identical_path)
@@ -91,6 +121,9 @@ def main() -> int:
     delayed = np.zeros_like(reference)
     delayed[DELAY_SAMPLES:] = reference[:-DELAY_SAMPLES]
     write_audio(delayed_path, delayed[:, None], SAMPLE_RATE)
+
+    # Demonstrate CLI offline render command
+    run_render("soft_clip", reference_path, clipped_path, {"drive_db": 6.0}, expected_exit_code=0)
 
     run_compare(reference_path, identical_path, "pass_report", expected_exit_code=0)
     run_compare(reference_path, delayed_path, "delay_fail_report", expected_exit_code=1)
@@ -118,6 +151,17 @@ def main() -> int:
                 "expected": "reference_white_noise.wav",
                 "actual": "render_delayed_2_5ms.wav",
             },
+            {
+                "id": "dynamic-gain-render",
+                "description": "Deterministic white noise rendered dynamically via built-in DSP (PASS)",
+                "expected": "reference_white_noise.wav",
+                "input": "reference_white_noise.wav",
+                "plugin": {
+                    "type": "builtin",
+                    "effect": "gain",
+                    "parameters": {"gain_db": 0.0},
+                },
+            },
         ],
     }
     manifest_path.write_text(json.dumps(manifest_data, indent=2) + "\n", encoding="utf-8")
@@ -126,7 +170,7 @@ def main() -> int:
 
     print("Demo files, batch suite, and reports regenerated in:")
     print(f"  {DEMO_DIR}")
-    print("Expected outcomes: pass_report=PASS, delay_fail_report=FAIL, batch=FAIL (1 pass, 1 fail).")
+    print("Expected outcomes: pass_report=PASS, delay_fail_report=FAIL, batch=FAIL (2 pass, 1 fail).")
     return 0
 
 

@@ -27,7 +27,12 @@ Evolvere da un comparatore di due file WAV a un **regression test bench affidabi
 ## 3. Perimetro attuale: cosa fa e cosa non fa
 
 ### Implementato
-- CLI Python con i sottocomandi `generate`, `compare` e `batch`.
+- CLI Python con i sottocomandi `generate`, `compare`, `batch` e `render`.
+- Hosting headless di plugin audio ed effetti DSP offline (`src/audiobench/plugins.py`):
+  - Supporto VST3/AU tramite Spotify Pedalboard (`VST3PluginAdapter`).
+  - Effetti DSP integrati deterministici in puro Python/SciPy (`gain`, `lowpass`, `highpass`, `delay`, `soft_clip`).
+  - Esecutore CLI esterno (`CliPluginAdapter`) con interpolazione sicura di placeholder e timeout.
+- Rendering dinamico degli stimoli di test nei manifest batch (`input` + `plugin`), con fallback in memoria o salvataggio su disco in `renders/`.
 - Generazione deterministica di cinque segnali WAV: impulso, sinusoide a 1 kHz, sweep logaritmico, rumore bianco con seed e silenzio.
 - Caricamento/scrittura WAV con dati convertiti a float per l'analisi.
 - Rifiuto esplicito dei file vuoti, dei campioni non finiti, dei sample rate differenti e dei numeri di canali incompatibili; non viene fatto resampling automatico.
@@ -42,13 +47,12 @@ Evolvere da un comparatore di due file WAV a un **regression test bench affidabi
 - Report HTML autosufficienti per singolo test e dashboard riassuntiva della suite (`summary.html`), con waveform SVG, tabella frequenze e JSON incorporato.
 - Output JSON autonomo per singolo test e aggregato per suite (`summary.json`).
 - Codici di uscita CLI: `0` per PASS/WARN (salvo `--fail-on-warn`), `1` per FAIL/ERROR o WARN con quell'opzione, `2` per input/configurazione/manifest/errore runtime gestito.
-- Suite estesa di 56 test unitari in `tests/` (`test_audio.py`, `test_metrics.py`, `test_batch.py`, `test_cli.py`, `test_analysis.py`).
+- Suite estesa di 75 test unitari in `tests/` (`test_audio.py`, `test_metrics.py`, `test_batch.py`, `test_cli.py`, `test_analysis.py`, `test_plugins.py`).
 - GitHub Actions per eseguire i test su Python 3.10, 3.11, 3.12 e 3.13.
 
 ### Non implementato (non dichiararlo come se lo fosse)
 
-- Non carica né esegue direttamente plugin VST3, Audio Unit o altri plugin nativi.
-- Non controlla una DAW e non orchestra il rendering di plugin.
+- Non controlla DAW interattive grafiche o automazioni GUI complesse.
 - Non fa resampling automatico.
 - La stima del ritardo via cross-correlazione può essere ambigua su silenzio, sinusoidi pure e segnali periodici. Va preferito un impulso o un segnale broadband appropriato per il test di latenza.
 - Un risultato PASS non equivale a una certificazione percettiva, a una prova che il suono sia musicalmente migliore o alla conformità a uno standard.
@@ -196,36 +200,31 @@ Le soglie predefinite sono valori iniziali generici (SNR minimo 60 dB, ritardo m
 
 L'allineamento stimato è riportato come diagnostica, ma i quality gate di fedeltà sono deliberatamente calcolati sui file non riallineati: compensare il delay prima di valutare la fedeltà potrebbe nascondere una vera regressione di latenza.
 
-## 8. Milestone completata: batch da manifest JSON
+## 8. Milestone completate
 
-È stato implementato il sottocomando `batch`:
+### M1: Batch da manifest JSON
+- Esecuzione da manifest JSON (`src/audiobench/batch.py`).
+- Merge soglie, fault isolation, dashboard riassuntiva HTML e JSON.
 
-```bash
-python -m audiobench batch \
-  --manifest examples/demo/demo_manifest.json \
-  --output-dir reports/batch
-```
+### M2: Analisi avanzata DSP, True-Peak & Health Checks
+- 7 bande acustiche standard con Welch PSD (`src/audiobench/analysis.py`).
+- THD / THD+N con finestratura Blackman-Harris e interpolazione parabolica.
+- True-Peak oversampled ITU-R BS.1770-4.
+- Sanity check numerico: DC offset, denormali/subnormali float32, clipping.
 
-### Funzionalità implementate e verificate
-
-1. Lettura manifest JSON con nome della suite, soglie globali e lista di test case (`src/audiobench/batch.py`).
-2. Risoluzione deterministica dei percorsi audio relativi alla directory del manifest (`resolve_path`).
-3. Merge ed override granulare delle soglie per singolo test (`merge_thresholds`).
-4. Isolamento dei guasti (fault isolation): un file mancante, corrotto o con sample rate non corrispondente viene registrato come `ERROR` senza bloccare l'esecuzione della suite.
-5. Reporting completo: artifact individuali `<test_id>.html` e `<test_id>.json`, unione machine-readable in `summary.json` e dashboard visiva in `summary.html` (`src/audiobench/report.py`).
-6. Codici di uscita conformi POSIX/CI: `0` (tutti PASS/WARN), `1` (FAIL o ERROR, oppure WARN con `--fail-on-warn`), `2` (manifest non valido, JSON errato o errore di configurazione).
-7. Suite di test estesa a 37 unit test (`test_batch.py`, `test_cli.py`, `test_audio.py`, `test_metrics.py`).
-8. Retrocompatibilità completa per i sottocomandi `generate` e `compare`.
+### M3: Headless Audio Plugin Adapter & Automated Rendering
+- Interfaccia `PluginAdapter` protocol in `src/audiobench/plugins.py`.
+- Host headless VST3/AU (`VST3PluginAdapter`) basato su Spotify Pedalboard.
+- Adattatore DSP integrato (`BuiltinDspAdapter`) per elaborazioni pure Python (gain, filtri lowpass/highpass, delay, soft_clip).
+- Host CLI generico (`CliPluginAdapter`) con templating sicuro.
+- Comando CLI dedicato `audiobench render --plugin ... --input ... --output ... [--params ...]`.
+- Rendering dinamico negli scenari batch: i test case possono specificare `input` e `plugin` per generare l'audio al volo e confrontarlo con il reference `expected`, supportando rendering in memoria o persistenza su disco in `renders/`.
 
 ## 9. Roadmap successiva
 
-Dopo il batch mode, procedere possibilmente in quest'ordine:
-
-1. **Risposta in frequenza per bande**: usare segnali di test noti (sweep o rumore) e una metodologia documentata per stimare le deviazioni.
-2. **THD+N**: protocollo basato su sinusoide, finestre e gestione delle componenti spettrali con test sintetici noti. Indicare limiti e non dichiarare conformità a standard senza averla verificata.
-3. **Benchmark storico**: confrontare risultati JSON fra commit/versioni e rendere visibili le regressioni.
-4. **Adapter di rendering**: solo dopo aver deciso un host e una piattaforma specifici. Possibili strade: harness di test per un plugin controllato dal progetto, oppure integrazione con un host CLI già disponibile. Non tentare subito di supportare ogni plugin/DAW.
-5. **UI opzionale**: valutare una UI soltanto se facilita il workflow; la CLI deve rimanere utile da sola.
+1. **Benchmark storico / Tracking metriche**: salvare e confrontare i risultati JSON fra commit o build successive per evidenziare trend di regressione.
+2. **CI Integration & GitHub Actions Artifacts**: pubblicazione automatica dei report HTML/JSON e dei summary come artifact scaricabili in CI.
+3. **UI opzionale / Web Dashboard**: interfaccia grafica leggera (es. Streamlit o web viewer locale) per ispezionare visivamente i report e le waveform.
 
 ## 10. Regole per Antigravity
 

@@ -5,6 +5,7 @@
   "description": "Deterministic white noise identical render (PASS)",
   "expected_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav",
   "actual_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\render_identical.wav",
+  "input_path": null,
   "thresholds": {
     "min_snr_db": 60.0,
     "max_delay_ms": 0.5,
@@ -124,7 +125,7 @@
     },
     "dsp_health": {
       "has_dc_offset": false,
-      "dc_offset_amplitude": -5.922218163808187e-08,
+      "dc_offset_amplitude": 5.922218163808187e-08,
       "dc_offset_dbfs": -144.5503119605728,
       "subnormals_count": 0,
       "clipped_samples_count": 0,

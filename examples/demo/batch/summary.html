@@ -48,8 +48,8 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
 </header>
 
 <div class="stats-grid">
-  <div class="stat-box"><div class="muted small">Total Tests</div><div class="stat-val">2</div></div>
-  <div class="stat-box"><div class="muted small">Passed</div><div class="stat-val pass">1</div></div>
+  <div class="stat-box"><div class="muted small">Total Tests</div><div class="stat-val">3</div></div>
+  <div class="stat-box"><div class="muted small">Passed</div><div class="stat-val pass">2</div></div>
   <div class="stat-box"><div class="muted small">Warnings</div><div class="stat-val warn">0</div></div>
   <div class="stat-box"><div class="muted small">Failed</div><div class="stat-val fail">1</div></div>
   <div class="stat-box"><div class="muted small">Errors</div><div class="stat-val error">0</div></div>
@@ -71,7 +71,7 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
         </tr>
       </thead>
       <tbody>
-        <tr><td><strong>identical-render</strong><div class="muted small">Deterministic white noise identical render (PASS)</div></td><td><span class='pill pass'>PASS</span></td><td>∞ (exact)</td><td>0.000 ms</td><td>—</td><td>0.00 ms</td><td><a href="identical-render.html">Report</a> · <a href="identical-render.json">JSON</a></td></tr><tr><td><strong>delayed-render</strong><div class="muted small">Artificial 2.5 ms delay exceeding 0.5 ms tolerance (FAIL)</div></td><td><span class='pill fail'>FAIL</span></td><td>-2.95 dB</td><td>2.500 ms</td><td>-18.49 dBFS</td><td>0.00 ms</td><td><a href="delayed-render.html">Report</a> · <a href="delayed-render.json">JSON</a></td></tr>
+        <tr><td><strong>identical-render</strong><div class="muted small">Deterministic white noise identical render (PASS)</div></td><td><span class='pill pass'>PASS</span></td><td>∞ (exact)</td><td>0.000 ms</td><td>—</td><td>0.00 ms</td><td><a href="identical-render.html">Report</a> · <a href="identical-render.json">JSON</a></td></tr><tr><td><strong>delayed-render</strong><div class="muted small">Artificial 2.5 ms delay exceeding 0.5 ms tolerance (FAIL)</div></td><td><span class='pill fail'>FAIL</span></td><td>-2.95 dB</td><td>2.500 ms</td><td>-18.49 dBFS</td><td>0.00 ms</td><td><a href="delayed-render.html">Report</a> · <a href="delayed-render.json">JSON</a></td></tr><tr><td><strong>dynamic-gain-render</strong><div class="muted small">Deterministic white noise rendered dynamically via built-in DSP (PASS)</div></td><td><span class='pill pass'>PASS</span></td><td>∞ (exact)</td><td>0.000 ms</td><td>—</td><td>0.00 ms</td><td><a href="dynamic-gain-render.html">Report</a> · <a href="dynamic-gain-render.json">JSON</a></td></tr>
       </tbody>
     </table>
   </div>
@@ -87,8 +87,8 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
   &quot;manifest_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\demo_manifest.json&quot;,
   &quot;status&quot;: &quot;FAIL&quot;,
   &quot;summary&quot;: {
-    &quot;total&quot;: 2,
-    &quot;passed&quot;: 1,
+    &quot;total&quot;: 3,
+    &quot;passed&quot;: 2,
     &quot;warned&quot;: 0,
     &quot;failed&quot;: 1,
     &quot;errored&quot;: 0
@@ -102,6 +102,7 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
       &quot;expected_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav&quot;,
       &quot;actual_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\render_identical.wav&quot;,
       &quot;status&quot;: &quot;PASS&quot;,
+      &quot;input_path&quot;: null,
       &quot;description&quot;: &quot;Deterministic white noise identical render (PASS)&quot;,
       &quot;error_message&quot;: null,
       &quot;metrics&quot;: {
@@ -214,7 +215,7 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
         },
         &quot;dsp_health&quot;: {
           &quot;has_dc_offset&quot;: false,
-          &quot;dc_offset_amplitude&quot;: -5.922218163808187e-08,
+          &quot;dc_offset_amplitude&quot;: 5.922218163808187e-08,
           &quot;dc_offset_dbfs&quot;: -144.5503119605728,
           &quot;subnormals_count&quot;: 0,
           &quot;clipped_samples_count&quot;: 0,
@@ -263,6 +264,7 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
       &quot;expected_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav&quot;,
       &quot;actual_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\render_delayed_2_5ms.wav&quot;,
       &quot;status&quot;: &quot;FAIL&quot;,
+      &quot;input_path&quot;: null,
       &quot;description&quot;: &quot;Artificial 2.5 ms delay exceeding 0.5 ms tolerance (FAIL)&quot;,
       &quot;error_message&quot;: null,
       &quot;metrics&quot;: {
@@ -375,7 +377,7 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
         },
         &quot;dsp_health&quot;: {
           &quot;has_dc_offset&quot;: false,
-          &quot;dc_offset_amplitude&quot;: -1.3635014494260153e-05,
+          &quot;dc_offset_amplitude&quot;: 1.3635014494260153e-05,
           &quot;dc_offset_dbfs&quot;: -97.3068879211887,
           &quot;subnormals_count&quot;: 0,
           &quot;clipped_samples_count&quot;: 0,
@@ -418,6 +420,168 @@ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; max-height:
       },
       &quot;html_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\delayed-render.html&quot;,
       &quot;json_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\delayed-render.json&quot;
+    },
+    {
+      &quot;id&quot;: &quot;dynamic-gain-render&quot;,
+      &quot;expected_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav&quot;,
+      &quot;actual_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\renders\\dynamic-gain-render_actual.wav&quot;,
+      &quot;status&quot;: &quot;PASS&quot;,
+      &quot;input_path&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav&quot;,
+      &quot;description&quot;: &quot;Deterministic white noise rendered dynamically via built-in DSP (PASS)&quot;,
+      &quot;error_message&quot;: null,
+      &quot;metrics&quot;: {
+        &quot;sample_rate_hz&quot;: 48000,
+        &quot;channels&quot;: 1,
+        &quot;expected_frames&quot;: 24000,
+        &quot;actual_frames&quot;: 24000,
+        &quot;expected_duration_s&quot;: 0.5,
+        &quot;actual_duration_s&quot;: 0.5,
+        &quot;duration_delta_ms&quot;: 0.0,
+        &quot;expected_peak_dbfs&quot;: -9.118638521315232,
+        &quot;actual_peak_dbfs&quot;: -9.118638521315232,
+        &quot;expected_true_peak_dbtp&quot;: -8.504772724547252,
+        &quot;actual_true_peak_dbtp&quot;: -8.504772724547252,
+        &quot;expected_rms_dbfs&quot;: -21.4403455778291,
+        &quot;actual_rms_dbfs&quot;: -21.4403455778291,
+        &quot;peak_delta_db&quot;: 0.0,
+        &quot;rms_delta_db&quot;: 0.0,
+        &quot;error_rms_dbfs&quot;: null,
+        &quot;snr_db&quot;: null,
+        &quot;relative_error_db&quot;: null,
+        &quot;correlation&quot;: 1.0,
+        &quot;mean_spectral_delta_db&quot;: 0.0,
+        &quot;spectral_shape_error_db&quot;: 0.0,
+        &quot;max_abs_error&quot;: 0.0,
+        &quot;estimated_delay_samples&quot;: 0,
+        &quot;estimated_delay_ms&quot;: 0.0,
+        &quot;delay_correlation&quot;: 0.9999999999999997,
+        &quot;aligned_snr_db&quot;: null,
+        &quot;aligned_samples_identical&quot;: true,
+        &quot;identical_samples&quot;: true,
+        &quot;duration_match&quot;: true,
+        &quot;band_analysis&quot;: {
+          &quot;bands&quot;: {
+            &quot;sub_bass&quot;: {
+              &quot;f_low_hz&quot;: 20.0,
+              &quot;f_high_hz&quot;: 60.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -49.59743064348422,
+              &quot;actual_dbfs&quot;: -49.59743064348422,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;bass&quot;: {
+              &quot;f_low_hz&quot;: 60.0,
+              &quot;f_high_hz&quot;: 250.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -42.63010688032423,
+              &quot;actual_dbfs&quot;: -42.63010688032423,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;low_mid&quot;: {
+              &quot;f_low_hz&quot;: 250.0,
+              &quot;f_high_hz&quot;: 500.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -41.43929291031785,
+              &quot;actual_dbfs&quot;: -41.43929291031785,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;mid&quot;: {
+              &quot;f_low_hz&quot;: 500.0,
+              &quot;f_high_hz&quot;: 2000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -33.33697920124663,
+              &quot;actual_dbfs&quot;: -33.33697920124663,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;high_mid&quot;: {
+              &quot;f_low_hz&quot;: 2000.0,
+              &quot;f_high_hz&quot;: 4000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -32.129946205993704,
+              &quot;actual_dbfs&quot;: -32.129946205993704,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;presence&quot;: {
+              &quot;f_low_hz&quot;: 4000.0,
+              &quot;f_high_hz&quot;: 6000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -32.1516891215964,
+              &quot;actual_dbfs&quot;: -32.1516891215964,
+              &quot;delta_db&quot;: 0.0
+            },
+            &quot;brilliance&quot;: {
+              &quot;f_low_hz&quot;: 6000.0,
+              &quot;f_high_hz&quot;: 20000.0,
+              &quot;active&quot;: true,
+              &quot;expected_dbfs&quot;: -23.845925141302953,
+              &quot;actual_dbfs&quot;: -23.845925141302953,
+              &quot;delta_db&quot;: 0.0
+            }
+          },
+          &quot;max_abs_band_delta_db&quot;: 0.0
+        },
+        &quot;max_abs_band_delta_db&quot;: 0.0,
+        &quot;expected_thd&quot;: {
+          &quot;is_sinusoidal&quot;: false,
+          &quot;reason&quot;: &quot;Signal is non-sinusoidal (fundamental not dominant)&quot;,
+          &quot;fundamental_hz&quot;: 14224.728223270318,
+          &quot;thd_db&quot;: null,
+          &quot;thd_percent&quot;: null,
+          &quot;thdn_db&quot;: null
+        },
+        &quot;actual_thd&quot;: {
+          &quot;is_sinusoidal&quot;: false,
+          &quot;reason&quot;: &quot;Signal is non-sinusoidal (fundamental not dominant)&quot;,
+          &quot;fundamental_hz&quot;: 14224.728223270318,
+          &quot;thd_db&quot;: null,
+          &quot;thd_percent&quot;: null,
+          &quot;thdn_db&quot;: null
+        },
+        &quot;dsp_health&quot;: {
+          &quot;has_dc_offset&quot;: false,
+          &quot;dc_offset_amplitude&quot;: 5.922218163808187e-08,
+          &quot;dc_offset_dbfs&quot;: -144.5503119605728,
+          &quot;subnormals_count&quot;: 0,
+          &quot;clipped_samples_count&quot;: 0,
+          &quot;clipped_samples_ratio&quot;: 0.0,
+          &quot;all_finite&quot;: true,
+          &quot;healthy&quot;: true
+        }
+      },
+      &quot;evaluation&quot;: {
+        &quot;status&quot;: &quot;PASS&quot;,
+        &quot;checks&quot;: {
+          &quot;duration&quot;: {
+            &quot;status&quot;: &quot;PASS&quot;,
+            &quot;observed&quot;: 0.0,
+            &quot;limit&quot;: 1.0,
+            &quot;message&quot;: &quot;Duration difference is within the configured tolerance.&quot;
+          },
+          &quot;latency&quot;: {
+            &quot;status&quot;: &quot;PASS&quot;,
+            &quot;observed&quot;: 0.0,
+            &quot;limit&quot;: 0.5,
+            &quot;message&quot;: &quot;Estimated delay is within the configured tolerance.&quot;
+          },
+          &quot;fidelity&quot;: {
+            &quot;status&quot;: &quot;PASS&quot;,
+            &quot;observed&quot;: &quot;exact match&quot;,
+            &quot;limit&quot;: -80.0,
+            &quot;message&quot;: &quot;The two renders are sample-identical.&quot;
+          }
+        }
+      },
+      &quot;thresholds&quot;: {
+        &quot;min_snr_db&quot;: 60.0,
+        &quot;max_delay_ms&quot;: 0.5,
+        &quot;max_duration_delta_ms&quot;: 1.0,
+        &quot;max_error_dbfs&quot;: -80.0,
+        &quot;max_band_delta_db&quot;: null,
+        &quot;max_thd_db&quot;: null,
+        &quot;max_true_peak_dbfs&quot;: null
+      },
+      &quot;html_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\dynamic-gain-render.html&quot;,
+      &quot;json_report&quot;: &quot;C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\dynamic-gain-render.json&quot;
     }
   ]
 }</pre>

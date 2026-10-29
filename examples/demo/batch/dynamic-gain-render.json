@@ -1,0 +1,160 @@
+{
+  "tool": "AudioBench",
+  "version": "0.1.0",
+  "test_id": "dynamic-gain-render",
+  "description": "Deterministic white noise rendered dynamically via built-in DSP (PASS)",
+  "expected_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav",
+  "actual_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\renders\\dynamic-gain-render_actual.wav",
+  "input_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav",
+  "thresholds": {
+    "min_snr_db": 60.0,
+    "max_delay_ms": 0.5,
+    "max_duration_delta_ms": 1.0,
+    "max_error_dbfs": -80.0,
+    "max_band_delta_db": null,
+    "max_thd_db": null,
+    "max_true_peak_dbfs": null
+  },
+  "metrics": {
+    "sample_rate_hz": 48000,
+    "channels": 1,
+    "expected_frames": 24000,
+    "actual_frames": 24000,
+    "expected_duration_s": 0.5,
+    "actual_duration_s": 0.5,
+    "duration_delta_ms": 0.0,
+    "expected_peak_dbfs": -9.118638521315232,
+    "actual_peak_dbfs": -9.118638521315232,
+    "expected_true_peak_dbtp": -8.504772724547252,
+    "actual_true_peak_dbtp": -8.504772724547252,
+    "expected_rms_dbfs": -21.4403455778291,
+    "actual_rms_dbfs": -21.4403455778291,
+    "peak_delta_db": 0.0,
+    "rms_delta_db": 0.0,
+    "error_rms_dbfs": null,
+    "snr_db": null,
+    "relative_error_db": null,
+    "correlation": 1.0,
+    "mean_spectral_delta_db": 0.0,
+    "spectral_shape_error_db": 0.0,
+    "max_abs_error": 0.0,
+    "estimated_delay_samples": 0,
+    "estimated_delay_ms": 0.0,
+    "delay_correlation": 0.9999999999999997,
+    "aligned_snr_db": null,
+    "aligned_samples_identical": true,
+    "identical_samples": true,
+    "duration_match": true,
+    "band_analysis": {
+      "bands": {
+        "sub_bass": {
+          "f_low_hz": 20.0,
+          "f_high_hz": 60.0,
+          "active": true,
+          "expected_dbfs": -49.59743064348422,
+          "actual_dbfs": -49.59743064348422,
+          "delta_db": 0.0
+        },
+        "bass": {
+          "f_low_hz": 60.0,
+          "f_high_hz": 250.0,
+          "active": true,
+          "expected_dbfs": -42.63010688032423,
+          "actual_dbfs": -42.63010688032423,
+          "delta_db": 0.0
+        },
+        "low_mid": {
+          "f_low_hz": 250.0,
+          "f_high_hz": 500.0,
+          "active": true,
+          "expected_dbfs": -41.43929291031785,
+          "actual_dbfs": -41.43929291031785,
+          "delta_db": 0.0
+        },
+        "mid": {
+          "f_low_hz": 500.0,
+          "f_high_hz": 2000.0,
+          "active": true,
+          "expected_dbfs": -33.33697920124663,
+          "actual_dbfs": -33.33697920124663,
+          "delta_db": 0.0
+        },
+        "high_mid": {
+          "f_low_hz": 2000.0,
+          "f_high_hz": 4000.0,
+          "active": true,
+          "expected_dbfs": -32.129946205993704,
+          "actual_dbfs": -32.129946205993704,
+          "delta_db": 0.0
+        },
+        "presence": {
+          "f_low_hz": 4000.0,
+          "f_high_hz": 6000.0,
+          "active": true,
+          "expected_dbfs": -32.1516891215964,
+          "actual_dbfs": -32.1516891215964,
+          "delta_db": 0.0
+        },
+        "brilliance": {
+          "f_low_hz": 6000.0,
+          "f_high_hz": 20000.0,
+          "active": true,
+          "expected_dbfs": -23.845925141302953,
+          "actual_dbfs": -23.845925141302953,
+          "delta_db": 0.0
+        }
+      },
+      "max_abs_band_delta_db": 0.0
+    },
+    "max_abs_band_delta_db": 0.0,
+    "expected_thd": {
+      "is_sinusoidal": false,
+      "reason": "Signal is non-sinusoidal (fundamental not dominant)",
+      "fundamental_hz": 14224.728223270318,
+      "thd_db": null,
+      "thd_percent": null,
+      "thdn_db": null
+    },
+    "actual_thd": {
+      "is_sinusoidal": false,
+      "reason": "Signal is non-sinusoidal (fundamental not dominant)",
+      "fundamental_hz": 14224.728223270318,
+      "thd_db": null,
+      "thd_percent": null,
+      "thdn_db": null
+    },
+    "dsp_health": {
+      "has_dc_offset": false,
+      "dc_offset_amplitude": 5.922218163808187e-08,
+      "dc_offset_dbfs": -144.5503119605728,
+      "subnormals_count": 0,
+      "clipped_samples_count": 0,
+      "clipped_samples_ratio": 0.0,
+      "all_finite": true,
+      "healthy": true
+    }
+  },
+  "evaluation": {
+    "status": "PASS",
+    "checks": {
+      "duration": {
+        "status": "PASS",
+        "observed": 0.0,
+        "limit": 1.0,
+        "message": "Duration difference is within the configured tolerance."
+      },
+      "latency": {
+        "status": "PASS",
+        "observed": 0.0,
+        "limit": 0.5,
+        "message": "Estimated delay is within the configured tolerance."
+      },
+      "fidelity": {
+        "status": "PASS",
+        "observed": "exact match",
+        "limit": -80.0,
+        "message": "The two renders are sample-identical."
+      }
+    }
+  }
+}
