@@ -8,4 +8,5 @@ build/
 dist/
 reports/
 .benchmarks/
+stimuli/
 .DS_Store
