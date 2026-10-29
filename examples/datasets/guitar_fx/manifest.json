@@ -1,0 +1,120 @@
+{
+  "name": "guitar-fx-virtual-analog-benchmark",
+  "description": "Ground Truth benchmark suite for guitar pedals & virtual analog overdrive",
+  "thresholds": {
+    "min_snr_db": 30.0,
+    "max_delay_ms": 0.1
+  },
+  "tests": [
+    {
+      "id": "gt-guitar-01-riff_e-mild_d",
+      "description": "Guitar FX Ground Truth vs DSP: riff_e_powerchord with mild_drive (Drive: 12.0 dB, Tone: 0.4)",
+      "expected": "ground_truth\\riff_e_powerchord_mild_drive.wav",
+      "actual": "actual_renders\\riff_e_powerchord_mild_drive_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 35.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "gt-guitar-02-riff_e-crunch",
+      "description": "Guitar FX Ground Truth vs DSP: riff_e_powerchord with crunch_lead (Drive: 22.0 dB, Tone: 0.7)",
+      "expected": "ground_truth\\riff_e_powerchord_crunch_lead.wav",
+      "actual": "actual_renders\\riff_e_powerchord_crunch_lead_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 35.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "gt-guitar-03-riff_a-mild_d",
+      "description": "Guitar FX Ground Truth vs DSP: riff_a_single_note with mild_drive (Drive: 12.0 dB, Tone: 0.4)",
+      "expected": "ground_truth\\riff_a_single_note_mild_drive.wav",
+      "actual": "actual_renders\\riff_a_single_note_mild_drive_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 35.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "gt-guitar-04-riff_a-crunch",
+      "description": "Guitar FX Ground Truth vs DSP: riff_a_single_note with crunch_lead (Drive: 22.0 dB, Tone: 0.7)",
+      "expected": "ground_truth\\riff_a_single_note_crunch_lead.wav",
+      "actual": "actual_renders\\riff_a_single_note_crunch_lead_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 35.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "gt-guitar-05-riff_d-mild_d",
+      "description": "Guitar FX Ground Truth vs DSP: riff_d_lead_bend with mild_drive (Drive: 12.0 dB, Tone: 0.4)",
+      "expected": "ground_truth\\riff_d_lead_bend_mild_drive.wav",
+      "actual": "actual_renders\\riff_d_lead_bend_mild_drive_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 35.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "gt-guitar-06-riff_d-crunch",
+      "description": "Guitar FX Ground Truth vs DSP: riff_d_lead_bend with crunch_lead (Drive: 22.0 dB, Tone: 0.7)",
+      "expected": "ground_truth\\riff_d_lead_bend_crunch_lead.wav",
+      "actual": "actual_renders\\riff_d_lead_bend_crunch_lead_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 35.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "gt-guitar-07-riff_g-mild_d",
+      "description": "Guitar FX Ground Truth vs DSP: riff_g_arpeggio with mild_drive (Drive: 12.0 dB, Tone: 0.4)",
+      "expected": "ground_truth\\riff_g_arpeggio_mild_drive.wav",
+      "actual": "actual_renders\\riff_g_arpeggio_mild_drive_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 35.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "gt-guitar-08-riff_g-crunch",
+      "description": "Guitar FX Ground Truth vs DSP: riff_g_arpeggio with crunch_lead (Drive: 22.0 dB, Tone: 0.7)",
+      "expected": "ground_truth\\riff_g_arpeggio_crunch_lead.wav",
+      "actual": "actual_renders\\riff_g_arpeggio_crunch_lead_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 35.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "gt-guitar-09-riff_b-mild_d",
+      "description": "Guitar FX Ground Truth vs DSP: riff_b_high_solo with mild_drive (Drive: 12.0 dB, Tone: 0.4)",
+      "expected": "ground_truth\\riff_b_high_solo_mild_drive.wav",
+      "actual": "actual_renders\\riff_b_high_solo_mild_drive_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 35.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "gt-guitar-10-riff_b-crunch",
+      "description": "Guitar FX Ground Truth vs DSP: riff_b_high_solo with crunch_lead (Drive: 22.0 dB, Tone: 0.7)",
+      "expected": "ground_truth\\riff_b_high_solo_crunch_lead.wav",
+      "actual": "actual_renders\\riff_b_high_solo_crunch_lead_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 35.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    }
+  ]
+}

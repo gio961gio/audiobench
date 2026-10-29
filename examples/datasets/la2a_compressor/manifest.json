@@ -1,0 +1,60 @@
+{
+  "name": "la2a-opto-compressor-ground-truth-suite",
+  "description": "Validation suite for optical dynamic range compressor against hardware modeled target",
+  "thresholds": {
+    "min_snr_db": 45.0,
+    "max_delay_ms": 0.05
+  },
+  "tests": [
+    {
+      "id": "gt-la2a-01-drum_bus_g",
+      "description": "Optical Compressor Ground Truth: drum_bus_groove (Thresh: -16.0 dBFS, Ratio: 3.0:1)",
+      "expected": "ground_truth\\drum_bus_groove_gt.wav",
+      "actual": "actual_renders\\drum_bus_groove_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 50.0,
+        "max_delay_ms": 0.02
+      }
+    },
+    {
+      "id": "gt-la2a-02-drum_bus_h",
+      "description": "Optical Compressor Ground Truth: drum_bus_heavy_crush (Thresh: -22.0 dBFS, Ratio: 8.0:1)",
+      "expected": "ground_truth\\drum_bus_heavy_crush_gt.wav",
+      "actual": "actual_renders\\drum_bus_heavy_crush_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 50.0,
+        "max_delay_ms": 0.02
+      }
+    },
+    {
+      "id": "gt-la2a-03-bass_di_wa",
+      "description": "Optical Compressor Ground Truth: bass_di_warmth (Thresh: -12.0 dBFS, Ratio: 4.0:1)",
+      "expected": "ground_truth\\bass_di_warmth_gt.wav",
+      "actual": "actual_renders\\bass_di_warmth_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 50.0,
+        "max_delay_ms": 0.02
+      }
+    },
+    {
+      "id": "gt-la2a-04-bass_di_sl",
+      "description": "Optical Compressor Ground Truth: bass_di_slap_transient (Thresh: -18.0 dBFS, Ratio: 6.0:1)",
+      "expected": "ground_truth\\bass_di_slap_transient_gt.wav",
+      "actual": "actual_renders\\bass_di_slap_transient_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 50.0,
+        "max_delay_ms": 0.02
+      }
+    },
+    {
+      "id": "gt-la2a-05-vocal_burs",
+      "description": "Optical Compressor Ground Truth: vocal_burst_compression (Thresh: -15.0 dBFS, Ratio: 3.5:1)",
+      "expected": "ground_truth\\vocal_burst_compression_gt.wav",
+      "actual": "actual_renders\\vocal_burst_compression_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 50.0,
+        "max_delay_ms": 0.02
+      }
+    }
+  ]
+}

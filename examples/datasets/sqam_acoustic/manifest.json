@@ -1,0 +1,54 @@
+{
+  "name": "ebu-sqam-acoustic-fidelity-suite",
+  "description": "Standardized acoustic assessment signals for transient preservation & harmonic fidelity",
+  "thresholds": {
+    "min_snr_db": 70.0,
+    "max_delay_ms": 0.02
+  },
+  "tests": [
+    {
+      "id": "gt-sqam-01-glockenspi",
+      "description": "EBU SQAM Standard Material: sqam_glockenspiel_transient",
+      "expected": "ground_truth\\sqam_glockenspiel_transient.wav",
+      "actual": "actual_renders\\sqam_glockenspiel_transient_render.wav",
+      "thresholds": {
+        "min_snr_db": 75.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "gt-sqam-02-cello_sust",
+      "description": "EBU SQAM Standard Material: sqam_cello_sustained_harmonics",
+      "expected": "ground_truth\\sqam_cello_sustained_harmonics.wav",
+      "actual": "actual_renders\\sqam_cello_sustained_harmonics_render.wav",
+      "thresholds": {
+        "min_snr_db": 75.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "gt-sqam-03-multitone_",
+      "description": "EBU SQAM Standard Material: sqam_multitone_crest_factor",
+      "expected": "ground_truth\\sqam_multitone_crest_factor.wav",
+      "actual": "actual_renders\\sqam_multitone_crest_factor_render.wav",
+      "thresholds": {
+        "min_snr_db": 75.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "gt-sqam-04-vocal_form",
+      "description": "EBU SQAM Standard Material: sqam_vocal_formant_burst",
+      "expected": "ground_truth\\sqam_vocal_formant_burst.wav",
+      "actual": "actual_renders\\sqam_vocal_formant_burst_render.wav",
+      "thresholds": {
+        "min_snr_db": 75.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    }
+  ]
+}

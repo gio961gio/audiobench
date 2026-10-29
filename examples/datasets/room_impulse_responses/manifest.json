@@ -1,0 +1,50 @@
+{
+  "name": "room-acoustics-convolution-benchmark",
+  "description": "Impulse response convolution benchmarking against mathematical reference",
+  "thresholds": {
+    "min_snr_db": 55.0,
+    "max_delay_ms": 0.05
+  },
+  "tests": [
+    {
+      "id": "gt-reverb-01-small_stud",
+      "description": "Convolution Engine vs Mathematical Target: small_studio_booth (RT60: 0.35s)",
+      "expected": "ground_truth\\small_studio_booth_wet.wav",
+      "actual": "actual_renders\\small_studio_booth_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "gt-reverb-02-medium_sco",
+      "description": "Convolution Engine vs Mathematical Target: medium_scoring_stage (RT60: 0.75s)",
+      "expected": "ground_truth\\medium_scoring_stage_wet.wav",
+      "actual": "actual_renders\\medium_scoring_stage_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "gt-reverb-03-large_ston",
+      "description": "Convolution Engine vs Mathematical Target: large_stone_cathedral (RT60: 1.5s)",
+      "expected": "ground_truth\\large_stone_cathedral_wet.wav",
+      "actual": "actual_renders\\large_stone_cathedral_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "gt-reverb-04-vintage_pl",
+      "description": "Convolution Engine vs Mathematical Target: vintage_plate_reverb (RT60: 1.0s)",
+      "expected": "ground_truth\\vintage_plate_reverb_wet.wav",
+      "actual": "actual_renders\\vintage_plate_reverb_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    }
+  ]
+}
