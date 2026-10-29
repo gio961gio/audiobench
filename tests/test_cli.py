@@ -172,3 +172,33 @@ def test_cli_compare_with_milestone2_options(tmp_path, capsys):
     captured = capsys.readouterr()
     assert "AudioBench result: PASS" in captured.out
     assert "True-Peak:" in captured.out
+
+
+def test_cli_short_options(tmp_path, capsys):
+    audio_path = tmp_path / "sample.wav"
+    data = np.zeros((100, 1), dtype=np.float64)
+    write_audio(audio_path, data, 48_000)
+
+    # Test short options -e and -a
+    exit_code = main(["compare", "-e", str(audio_path), "-a", str(audio_path)])
+    assert exit_code == 0
+
+    # Test short option -m on batch
+    manifest = tmp_path / "m.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "name": "t",
+                "tests": [
+                    {
+                        "id": "t1",
+                        "expected": str(audio_path),
+                        "actual": str(audio_path),
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    exit_code_batch = main(["batch", "-m", str(manifest), "-o", str(tmp_path / "out")])
+    assert exit_code_batch == 0

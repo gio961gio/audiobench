@@ -36,10 +36,10 @@ def _add_generate_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def _add_compare_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser("compare", help="Compare expected and actual offline audio renders")
-    parser.add_argument("--expected", required=True, help="Path to reference/expected WAV file")
-    parser.add_argument("--actual", required=True, help="Path to render under test")
-    parser.add_argument("--report", default="reports/latest.html", help="HTML report path (default: reports/latest.html)")
-    parser.add_argument("--json", dest="json_path", default="reports/latest.json", help="JSON output path (default: reports/latest.json)")
+    parser.add_argument("-e", "--expected", required=True, help="Path to reference/expected WAV file")
+    parser.add_argument("-a", "--actual", required=True, help="Path to render under test")
+    parser.add_argument("-r", "--report", default="reports/latest.html", help="HTML report path (default: reports/latest.html)")
+    parser.add_argument("-j", "--json", dest="json_path", default="reports/latest.json", help="JSON output path (default: reports/latest.json)")
     parser.add_argument("--min-snr-db", type=float, default=60.0, help="Minimum reference-to-error SNR for PASS (default: 60 dB)")
     parser.add_argument("--max-delay-ms", type=float, default=0.5, help="Maximum absolute estimated delay for PASS (default: 0.5 ms)")
     parser.add_argument("--max-duration-delta-ms", type=float, default=1.0, help="Maximum absolute duration delta for PASS (default: 1 ms)")
@@ -53,8 +53,8 @@ def _add_compare_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def _add_batch_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser("batch", help="Run a suite of regression comparisons from a JSON manifest")
-    parser.add_argument("--manifest", required=True, help="Path to JSON test manifest file")
-    parser.add_argument("--output-dir", default="reports/batch", help="Directory for generated reports (default: reports/batch)")
+    parser.add_argument("-m", "--manifest", required=True, help="Path to JSON test manifest file")
+    parser.add_argument("-o", "--output-dir", default="reports/batch", help="Directory for generated reports (default: reports/batch)")
     parser.add_argument("--fail-on-warn", action="store_true", help="Return exit code 1 for WARN as well as FAIL")
     parser.add_argument(
         "--baseline",
@@ -71,12 +71,13 @@ def _add_batch_parser(subparsers: argparse._SubParsersAction) -> None:
 def _add_render_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser("render", help="Render an audio file through a plugin or DSP chain offline")
     parser.add_argument(
+        "-p",
         "--plugin",
         required=True,
         help="Plugin path (VST3/AU) or built-in effect name ('gain', 'lowpass', 'highpass', 'delay', 'soft_clip')",
     )
-    parser.add_argument("--input", required=True, help="Input WAV file path")
-    parser.add_argument("--output", required=True, help="Output WAV file path")
+    parser.add_argument("-i", "--input", required=True, help="Input WAV file path")
+    parser.add_argument("-o", "--output", required=True, help="Output WAV file path")
     parser.add_argument(
         "--type",
         choices=["vst3", "au", "builtin", "cli"],
@@ -95,7 +96,7 @@ def _add_history_parser(subparsers: argparse._SubParsersAction) -> None:
 
     # record
     rec_p = h_sub.add_parser("record", help="Append a batch summary to benchmark history")
-    rec_p.add_argument("--summary", required=True, help="Path to batch summary.json")
+    rec_p.add_argument("-s", "--summary", required=True, help="Path to batch summary.json")
     rec_p.add_argument("--history-file", default=None, help="Custom path to history.jsonl")
 
     # diff
