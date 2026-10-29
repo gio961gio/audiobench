@@ -20,9 +20,13 @@ dependencies = [
 plugins = [
   "pedalboard>=0.9.0",
 ]
+ui = [
+  "streamlit>=1.30.0",
+]
 dev = [
   "pytest>=7.4",
   "pedalboard>=0.9.0",
+  "streamlit>=1.30.0",
 ]
 
 [project.scripts]

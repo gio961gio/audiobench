@@ -8,6 +8,10 @@ AudioBench compares an expected/reference render with an actual render, computes
 
 ## Features
 
+- **Web Studio Dashboard & A/B Differential Listening Player** (`audiobench ui` or `Launch_App.bat`): interactive Streamlit dark-theme workstation with 3-channel synchronized auditioning (Reference, Actual, Difference Residual), up to $+48\text{ dB}$ Gain Boost, and a $-0.5\text{ dBFS}$ audio safety ceiling.
+- **Bit-exact in-memory WAV serialization**: streams uncompressed 16-bit PCM WAV bytes directly to the browser player, bypassing Streamlit's default auto-normalization to 0 dBFS to preserve authentic listening levels.
+- **Latency-compensated null auditioning**: toggle between Raw Null ($y[n] - x[n]$) and Delay-Compensated Null ($y[n - \Delta n] - x[n]$) to isolate pure harmonic distortion and aliasing from phase comb-filtering.
+- **Live A/B Sandbox**: drag-and-drop comparison of arbitrary WAV pairs on the fly with immediate sample-accurate metric evaluation.
 - Deterministic test stimuli: impulse, 1 kHz sine, logarithmic sweep, seeded white noise, and silence.
 - **Headless plugin hosting & offline DSP rendering** (`audiobench render`): render audio through VST3/AU plugins (via Spotify's Pedalboard), pure-Python DSP effects (gain, lowpass, highpass, delay, soft-clip), or arbitrary external CLI processors.
 - **Dynamic stimulus rendering in batch manifests**: specify `input` + `plugin` to render test cases on the fly before regression comparison, with parameter inheritance and override.
@@ -61,9 +65,24 @@ audiobench batch \
   --manifest examples/demo/demo_manifest.json \
   --output-dir reports/batch
 
-# 7. Run the tests
+# 7. Launch the interactive Web Studio & A/B Differential Player
+audiobench ui
+# (Or on Windows: double-click Launch_App.bat)
+
+# 8. Run the tests
 pytest
 ```
+
+## CLI Command Reference
+
+| Command | Purpose | Example |
+|---|---|---|
+| `audiobench generate` | Synthesize deterministic test stimuli (impulses, sines, sweeps, noise) | `audiobench generate -d 1 -o stimuli` |
+| `audiobench compare` | Sample-accurate comparison between reference and actual renders | `audiobench compare -e ref.wav -a test.wav` |
+| `audiobench render` | Offline rendering via VST3/AU, pure Python DSP, or CLI tools | `audiobench render --plugin gain -i in.wav -o out.wav` |
+| `audiobench batch` | Execute automated regression suites from JSON manifests | `audiobench batch -m suite.json -o reports` |
+| `audiobench history` | Record benchmarks, compare baselines, and plot trendlines | `audiobench history diff --baseline HEAD~1` |
+| `audiobench ui` | Launch the Web Studio Dashboard & A/B Differential Player | `audiobench ui --port 8501` |
 
 The CLI is also available without installing the console script:
 
@@ -74,6 +93,7 @@ python -m audiobench render --help
 python -m audiobench compare --help
 python -m audiobench batch --help
 python -m audiobench history --help
+python -m audiobench ui --help
 ```
 
 ## Batch regression testing (JSON manifest)
@@ -213,6 +233,34 @@ By default, `history diff` flags a regression (exit code 1) when:
 - **True-Peak increases** by more than `0.1 dBTP`.
 - **THD increases** by more than `1.0 dB`.
 
+## Web Studio Dashboard & A/B Differential Listening Player
+
+Launch the local interactive workstation in a single command or double-click `Launch_App.bat`:
+
+```bash
+# Launch interactive Streamlit Web Studio
+audiobench ui
+
+# Or launch on a custom host/port headless
+audiobench ui --port 8505 --host 127.0.0.1 --no-browser
+```
+
+### Key Capabilities
+
+1. **Bit-Exact In-Memory Audio Playback:**
+   Standard Streamlit audio playback silently normalizes raw arrays to 0 dBFS, destroying true relative listening levels. AudioBench encodes audio into 16-bit PCM WAV in memory (`io.BytesIO`), guaranteeing bit-accurate level reproduction across Expected, Actual, and Difference streams.
+2. **Amplified Difference Residual ($e(t) = y(t) - x(t)$):**
+   Boost subtle cancellation residuals up to $+48\text{ dB}$ (default $+24\text{ dB}$) to audition non-linear harmonic distortion, aliasing, and filter tail truncation that are otherwise inaudible at nominal levels.
+3. **Hardware & Ear Safety Limiter:**
+   Auditioning anti-phase or heavily distorted signals with $+24\text{ dB}$ boost can produce catastrophic digital clipping ($+30\text{ dBFS}$). AudioBench continuously monitors the residual peak and dynamically attenuates the gain to guarantee a strict $-0.5\text{ dBFS}$ ($0.94406$) ceiling, displaying a real-time amber badge (`⚠️ Safety Limiter Active`) when triggered.
+4. **Raw Null vs Delay-Compensated Null:**
+   - **Raw Null ($y[n] - x[n]$):** Plays back the exact time-domain subtraction, revealing phase discrepancies and latency comb-filtering.
+   - **Delay-Compensated Null ($y[n - \Delta n] - x[n]$):** Shifts the actual signal by the estimated latency before subtraction, canceling out the linear phase shift to expose pure non-linear harmonic distortion, aliasing, and quantization noise.
+5. **3 Workstation Tabs:**
+   - **Suite & A/B Differential Player:** Inspect automated batch summaries with KPI cards, DSP metrics (SNR, RMS error, True-Peak), and synchronized 3-player listening.
+   - **Benchmark Trend History:** Interactive trendlines plotting metric progressions (SNR, True-Peak) across Git commits and builds.
+   - **Live A/B Sandbox:** Instant drag-and-drop WAV comparison with sample rate checking and live difference nulling.
+
 ## Architecture
 
 ```text
@@ -225,9 +273,9 @@ WAV / Manifest / Input Stimulus
              │                         │                           │
              ▼                         └───────────┬───────────────┘
        history.py (JSONL & SVG Sparklines)         v
-                                        report.py (HTML + JSON)
-                                                   │
-                                                cli.py
+             │                          report.py (HTML + JSON)
+             ▼                                     │
+      app.py (Web Studio & A/B Player)          cli.py
 ```
 
 - `audio.py`: safe WAV loading/writing and deterministic stimuli.
@@ -237,6 +285,7 @@ WAV / Manifest / Input Stimulus
 - `metrics.py`: sample-based comparison metrics, cross-correlation delay estimation, and quality gate evaluations.
 - `analysis.py`: 7-band acoustic Welch PSD, harmonic distortion analysis (THD/THD+N), True-Peak oversampling, and DSP numerical sanity checks.
 - `report.py`: standalone per-test and summary dashboard HTML reports; no CDN or browser-side dependencies.
+- `app.py`: interactive Streamlit Web Studio Dashboard & A/B Differential Listening Player with Anti-Slop Studio Dark Theme.
 - `cli.py`: command-line entry point with CI-friendly exit codes (`0`, `1`, `2`).
 
 ## Testing
@@ -245,7 +294,7 @@ WAV / Manifest / Input Stimulus
 pytest
 ```
 
-The unit tests use generated arrays, pure Python DSP algorithms, and temporary WAV files, avoiding external proprietary binaries.
+The unit test suite contains **94 tests** covering DSP algorithms, comparison metrics, delay sign, batch manifests, error isolation, plugin adapters, history tracking, in-memory audio serialization, difference math, safety limiter clamping, and CLI exit codes.
 
 ## Roadmap
 
@@ -256,7 +305,8 @@ Upcoming milestones:
 3. [x] **THD+N & True-Peak test protocol:** calibrated sine-based harmonic distortion analyzer and ITU-R BS.1770-4 inter-sample peak measurement.
 4. [x] **Plugin adapter & automated rendering:** headless VST3/AU host via Pedalboard, built-in pure Python DSP chains, CLI adapter, and `render` command.
 5. [x] **Benchmark history & regression tracking:** track render metrics over time in append-only JSONL, detect regressions against Git baselines, and render SVG trendline dashboards.
-6. [ ] **CI integration:** publish HTML and JSON reports as artifacts on every commit.
+6. [x] **Web Studio Dashboard & A/B Differential Player:** interactive dark-theme workstation with bit-exact in-memory WAV serialization, $+24\text{ dB}$ difference gain boost, $-0.5\text{ dBFS}$ safety limiter, and latency compensation.
+7. [ ] **CI integration:** publish HTML/JSON reports and regression summaries as GitHub Actions artifacts on every commit.
 
 Do not market items on the roadmap as implemented features.
 

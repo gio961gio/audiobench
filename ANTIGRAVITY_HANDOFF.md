@@ -27,7 +27,15 @@ Evolvere da un comparatore di due file WAV a un **regression test bench affidabi
 ## 3. Perimetro attuale: cosa fa e cosa non fa
 
 ### Implementato
-- CLI Python con i sottocomandi `generate`, `compare`, `batch`, `render` e `history`.
+- CLI Python con i sottocomandi `generate`, `compare`, `batch`, `render`, `history` e `ui`.
+- **Web Studio Dashboard & A/B Differential Listening Player** (`src/audiobench/app.py`):
+  - Workstation Streamlit interattiva con Minimalist Studio Dark Theme (`#0e1117`, `#161b22`, `#38bdf8`, font monospace tabulare).
+  - Serializzazione audio in-memory bit-exact (`_array_to_wav_bytes`) in formato WAV PCM 16-bit che scavalca la normalizzazione automatica a 0 dBFS di Streamlit, preservando i livelli d'ascolto originali.
+  - Player A/B differenziale sincrono per Reference, Actual e Residuo di cancellazione $e(t) = y(t) - x(t)$ con Gain Boost fino a $+48\text{ dB}$ (default $+24\text{ dB}$).
+  - Hardware & Ear Safety Limiter con ceiling a $-0.5\text{ dBFS}$ ($0.94406$) e segnalazione visiva attiva a badge per evitare danni all'udito o ai monitor su segnali in controfase.
+  - Compensazione della latenza stimata prima della sottrazione ("Delay-Compensated Null") per isolare la vera distorsione non-lineare ed escludere il comb-filtering di fase.
+  - Tab Storico interattivo con trendline SNR/True-Peak ed esecuzioni recenti; Live Sandbox per drag & drop di file WAV al volo.
+  - Launcher desktop 1-click `Launch_App.bat` con rilevamento virtualenv locale.
 - Tracking storico dei benchmark e analisi delle regressioni (`src/audiobench/history.py`):
   - Storage append-only `history.jsonl` con metadati Git (commit hash, branch, is_dirty) e fallback CI su detached HEAD.
   - Rilevamento delle regressioni metriche (`history diff`) con direzionalità esplicita (`HIGHER_IS_BETTER` per SNR, `LOWER_IS_BETTER` per delay, THD, peak) e tolleranze configurabili.
@@ -53,7 +61,7 @@ Evolvere da un comparatore di due file WAV a un **regression test bench affidabi
 - Report HTML autosufficienti per singolo test, dashboard riassuntiva della suite (`summary.html`) e dashboard trend storici (`history.html`), con waveform SVG, sparklines, tabella frequenze e JSON incorporato.
 - Output JSON autonomo per singolo test e aggregato per suite (`summary.json`).
 - Codici di uscita CLI: `0` per PASS/WARN (salvo `--fail-on-warn`), `1` per FAIL/ERROR/REGRESSION o WARN con quell'opzione, `2` per input/configurazione/manifest/errore runtime gestito.
-- Suite estesa di 88 test unitari in `tests/` (`test_audio.py`, `test_metrics.py`, `test_batch.py`, `test_cli.py`, `test_analysis.py`, `test_plugins.py`, `test_history.py`).
+- Suite estesa di 94 test unitari in `tests/` (`test_audio.py`, `test_metrics.py`, `test_batch.py`, `test_cli.py`, `test_analysis.py`, `test_plugins.py`, `test_history.py`, `test_ui.py`).
 - GitHub Actions per eseguire i test su Python 3.10, 3.11, 3.12 e 3.13.
 
 ### Non implementato (non dichiararlo come se lo fosse)
@@ -70,11 +78,15 @@ Questi limiti sono importanti e vanno mantenuti espliciti nella documentazione.
 ```text
 AudioBench/
 ├── .github/workflows/tests.yml   # CI: installa pacchetto ed esegue pytest
+├── .streamlit/
+│   └── config.toml               # Tema grafico Studio Dark e parametri server
 ├── AGENTS.md                     # istruzioni persistenti per l'agente di coding
 ├── ANTIGRAVITY_HANDOFF.md        # questo documento: contesto e piano
+├── Launch_App.bat                # Launcher desktop 1-click Windows per Web Studio
+├── packages.txt                  # Dipendenze native C (libsndfile1, ffmpeg) per cloud
 ├── README.md                     # documentazione progetto in inglese
 ├── LICENSE                       # licenza MIT
-├── pyproject.toml                # packaging, dipendenze e comando CLI
+├── pyproject.toml                # packaging, dipendenze [dev, plugins, ui] e CLI
 ├── examples/
 │   ├── README.md
 │   └── demo/                     # WAV, report HTML e JSON dimostrativi
@@ -83,36 +95,41 @@ AudioBench/
 ├── src/audiobench/
 │   ├── __init__.py                # versione del pacchetto
 │   ├── __main__.py                # supporto a python -m audiobench
-│   ├── audio.py                   # I/O WAV e segnali di test
+│   ├── analysis.py                # 7 bande Welch PSD, THD/THD+N, True-Peak, Health
+│   ├── app.py                     # Web Studio Dashboard & A/B Differential Player
+│   ├── audio.py                   # I/O WAV e segnali di test deterministici
+│   ├── batch.py                   # Esecutore suite JSON, merge soglie, path resolver
 │   ├── cli.py                     # interfaccia a riga di comando
-│   ├── metrics.py                 # metriche, stima ritardo e soglie
-│   └── report.py                  # report HTML autosufficiente
+│   ├── history.py                 # tracking benchmark JSONL, diff regressioni, SVG
+│   ├── metrics.py                 # metriche, stima ritardo e quality gate
+│   ├── plugins.py                 # headless VST3/AU host, built-in DSP, CLI adapter
+│   └── report.py                  # report HTML autonomi per test e suite
 └── tests/
+    ├── test_analysis.py
     ├── test_audio.py
-    └── test_metrics.py
+    ├── test_batch.py
+    ├── test_cli.py
+    ├── test_history.py
+    ├── test_metrics.py
+    ├── test_plugins.py
+    └── test_ui.py
 ```
 
 ### Architettura
 
 ```text
-WAV di riferimento + WAV da verificare
-                 │
-                 ▼
-          audio.py (I/O)
-                 │
-                 ▼
-         metrics.py (misure)
-                 │
-                 ▼
-       valutazione delle soglie
-                 │
-        ┌────────┴────────┐
-        ▼                 ▼
-   report.py             JSON
-    HTML                  │
-        └────────┬────────┘
-                 ▼
-              cli.py
+WAV di riferimento + WAV da verificare / Stimolo di input
+                        │
+                        ├──> plugins.py (Hosting VST3 / AU / Builtin / CLI)
+                        │         │
+                        ▼         ▼
+          audio.py / batch.py ──> metrics.py / analysis.py ──> quality gates
+                        │                        │                     │
+                        ▼                        └──────────┬──────────┘
+          history.py (JSONL & SVG Sparklines)               ▼
+                        │                        report.py (HTML + JSON)
+                        ▼                                   │
+                 app.py (Web Studio)                     cli.py
 ```
 
 Tenere la logica DSP indipendente dalla CLI e dal report. I calcoli devono essere testabili direttamente con array NumPy senza necessità di una UI o di file reali.
@@ -235,10 +252,19 @@ L'allineamento stimato è riportato come diagnostica, ma i quality gate di fedel
 - Integrazione nativa in `audiobench batch` (`--baseline <commit_or_file>` e `--record-history`).
 - Generazione dashboard HTML autonoma con sparkline SVG vettoriali native e tooltip interattivi.
 
+### M5: Web Studio Dashboard & A/B Differential Listening Player
+- Workstation Streamlit interattiva in `src/audiobench/app.py` con Anti-Slop Studio Dark Theme (`#0e1117`, `#161b22`, `#38bdf8`, font monospace tabulare).
+- Serializzazione in-memory bit-exact in WAV PCM 16-bit (`_array_to_wav_bytes`) che neutralizza l'auto-normalizzazione di `st.audio`.
+- Player differenziale $e(t) = y(t) - x(t)$ con Gain Boost fino a $+48\text{ dB}$, Safety Limiter attivo con ceiling a $-0.5\text{ dBFS}$ ($0.94406$), e toggle "Raw Null" vs "Delay-Compensated Null".
+- Tre tab dedicati: ispezione suite con player sincronizzato, trendline storiche interattive e Live A/B Sandbox.
+- Sottocomando CLI `audiobench ui` (`--port`, `--host`, `--no-browser`) con disaccoppiamento ed extra `audiobench[ui]`.
+- Launcher Windows desktop 1-click `Launch_App.bat`.
+- 6 test unitari in `tests/test_ui.py` (94 test unitari complessivi).
+
 ## 9. Roadmap successiva
 
-1. **CI Integration & GitHub Actions Artifacts**: pubblicazione automatica dei report HTML/JSON e dei summary come artifact scaricabili o deploy su GitHub Pages ad ogni commit/PR.
-2. **UI opzionale / Web Player**: interfaccia web locale leggera (es. Streamlit) per ascolto A/B sincrono (Expected, Actual, Difference amplificata di 20 dB) e ispezione delle waveform.
+1. **CI Integration & GitHub Actions Artifacts / PR Bot**: pubblicazione automatica dei report HTML/JSON e dei summary come artifact scaricabili o deploy su GitHub Pages ad ogni commit/PR.
+2. **Audio Streaming & Spectrogram Visualizer**: waterfall 3D spettrale / spectrogramma interattivo HTML Canvas per l'analisi visiva delle risonanze e del decadimento dei riverberi.
 
 ## 10. Regole per Antigravity
 

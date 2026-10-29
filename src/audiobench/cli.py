@@ -126,6 +126,13 @@ def _add_history_parser(subparsers: argparse._SubParsersAction) -> None:
     rep_p.add_argument("--history-file", default=None, help="Custom path to history.jsonl")
 
 
+def _add_ui_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser("ui", help="Launch the interactive Streamlit Web Studio & A/B Differential Player")
+    parser.add_argument("--port", type=int, default=8501, help="Port to run the web server on (default: 8501)")
+    parser.add_argument("--host", default="localhost", help="Host address to bind to (default: localhost)")
+    parser.add_argument("--no-browser", action="store_true", help="Do not automatically open the browser on launch")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="audiobench",
@@ -138,6 +145,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_batch_parser(subparsers)
     _add_render_parser(subparsers)
     _add_history_parser(subparsers)
+    _add_ui_parser(subparsers)
     return parser
 
 
@@ -431,6 +439,47 @@ def _run_history(args: argparse.Namespace) -> int:
     return 2
 
 
+def _run_ui(args: argparse.Namespace) -> int:
+    import importlib.util
+    import subprocess
+
+    if importlib.util.find_spec("streamlit") is None:
+        print(
+            "error: AudioBench UI requires 'streamlit'.\n"
+            "Install it with: pip install 'audiobench[ui]'",
+            file=sys.stderr,
+        )
+        return 1
+
+    app_path = Path(__file__).resolve().parent / "app.py"
+    cmd = [
+        sys.executable,
+        "-m",
+        "streamlit",
+        "run",
+        str(app_path),
+        "--server.port",
+        str(args.port),
+        "--server.address",
+        args.host,
+    ]
+    if args.no_browser:
+        cmd.extend(["--server.headless", "true"])
+    else:
+        cmd.extend(["--server.headless", "false"])
+
+    print(f"Launching AudioBench Web Studio on http://{args.host}:{args.port}...")
+    try:
+        completed = subprocess.run(cmd, check=False)
+        return completed.returncode
+    except KeyboardInterrupt:
+        print("\nAudioBench Web Studio stopped.")
+        return 0
+    except OSError as exc:
+        print(f"error launching UI: {exc}", file=sys.stderr)
+        return 2
+
+
 def _human(value: float | None, unit: str, *, exact: bool = False) -> str:
     if exact:
         return "inf (sample-identical)"
@@ -452,6 +501,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_render(args)
     if args.command == "history":
         return _run_history(args)
+    if args.command == "ui":
+        return _run_ui(args)
     parser.error(f"Unknown command: {args.command}")
     return 2
 
