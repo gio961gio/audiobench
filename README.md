@@ -19,9 +19,11 @@ AudioBench compares an expected/reference render with an actual render, computes
 - **DSP numerical health diagnostics**: automated detection of DC offset, single-precision subnormal/denormal floats, and sample clipping.
 - Independent quality gates for fidelity, latency, duration, frequency bands (`max_band_delta_db`), distortion (`max_thd_db`), and True-Peak (`max_true_peak_dbfs`).
 - Batch test suite execution from a JSON manifest with fault isolation, relative path resolution, and per-test threshold overrides.
-- Standalone HTML reports (per-test and suite summary dashboard) with waveform overview, frequency band table, and embedded JSON results.
+- **Benchmark history & longitudinal regression tracking** (`audiobench history`): record suite runs in append-only `history.jsonl`, detect metric regressions against past Git commits or baselines (`audiobench history diff`), and render standalone HTML dashboards with responsive SVG sparklines (`audiobench history report`).
+- **Batch atomic CI baseline check**: pass `--baseline <commit_or_file>` and `--record-history` directly to `audiobench batch` for single-step regression gating in CI.
+- Standalone HTML reports (per-test, suite summary dashboard, and history trendlines) with waveform overview, frequency band table, and embedded JSON results.
 - CLI exit codes suitable for local scripts and CI: `0` for PASS/WARN, `1` for FAIL/ERROR, `2` for invalid input/runtime/manifest error. Use `--fail-on-warn` to make warnings fail a CI job.
-- Comprehensive unit tests covering DSP algorithms, comparison metrics, delay sign, batch manifests, error isolation, plugin adapters, and CLI exit codes.
+- Comprehensive unit tests covering DSP algorithms, comparison metrics, delay sign, batch manifests, error isolation, plugin adapters, history tracking, and CLI exit codes.
 
 ## Quick start
 
@@ -71,6 +73,7 @@ python -m audiobench generate --help
 python -m audiobench render --help
 python -m audiobench compare --help
 python -m audiobench batch --help
+python -m audiobench history --help
 ```
 
 ## Batch regression testing (JSON manifest)
@@ -180,6 +183,36 @@ audiobench compare \
 
 Thresholds depend on the system under test. A nonlinear effect, analog-modeling plugin, random modulation, or intentionally changed DSP behavior may need a different protocol. Document the test setup and never loosen a threshold merely to make a test pass.
 
+## Benchmark history and regression tracking
+
+AudioBench tracks metrics across Git commits and builds, enabling longitudinal regression detection in CI:
+
+```bash
+# 1. Record a batch summary to the benchmark history (.benchmarks/history.jsonl)
+audiobench history record --summary reports/batch/summary.json
+
+# 2. Compare current run against a baseline (commit hash, 'latest', or JSON summary)
+audiobench history diff --baseline latest --current reports/batch/summary.json
+
+# 3. Generate a standalone HTML trend dashboard with native SVG sparklines
+audiobench history report --output reports/history.html
+
+# 4. Or execute batch with single-step baseline checking and auto-recording in CI:
+audiobench batch \
+  --manifest path/to/manifest.json \
+  --baseline latest \
+  --record-history
+```
+
+### Regression thresholds
+
+By default, `history diff` flags a regression (exit code 1) when:
+- Any test case changes state from `PASS` to `FAIL` or `ERROR`.
+- **SNR drops** by more than `1.0 dB`.
+- **Delay increases** by more than `0.05 ms` (~2 samples at 48 kHz).
+- **True-Peak increases** by more than `0.1 dBTP`.
+- **THD increases** by more than `1.0 dB`.
+
 ## Architecture
 
 ```text
@@ -189,9 +222,9 @@ WAV / Manifest / Input Stimulus
              │        │
              ▼        ▼
        audio.py / batch.py ──> metrics.py / analysis.py ──> quality gates
-                                       │                           │
-                                       └───────────┬───────────────┘
-                                                   v
+             │                         │                           │
+             ▼                         └───────────┬───────────────┘
+       history.py (JSONL & SVG Sparklines)         v
                                         report.py (HTML + JSON)
                                                    │
                                                 cli.py
@@ -200,6 +233,7 @@ WAV / Manifest / Input Stimulus
 - `audio.py`: safe WAV loading/writing and deterministic stimuli.
 - `plugins.py`: headless plugin hosts (VST3/AU via Pedalboard, built-in pure Python DSP chains, external CLI tools).
 - `batch.py`: manifest parsing, fault-isolated suite runner, dynamic rendering orchestration, and path resolution.
+- `history.py`: append-only benchmark history tracking (`history.jsonl`), metric regression detection, and SVG trendline dashboard generation.
 - `metrics.py`: sample-based comparison metrics, cross-correlation delay estimation, and quality gate evaluations.
 - `analysis.py`: 7-band acoustic Welch PSD, harmonic distortion analysis (THD/THD+N), True-Peak oversampling, and DSP numerical sanity checks.
 - `report.py`: standalone per-test and summary dashboard HTML reports; no CDN or browser-side dependencies.
@@ -221,8 +255,8 @@ Upcoming milestones:
 2. [x] **Band-wise frequency-response checks:** Welch PSD analysis across 7 acoustic bands with noise-floor clamping.
 3. [x] **THD+N & True-Peak test protocol:** calibrated sine-based harmonic distortion analyzer and ITU-R BS.1770-4 inter-sample peak measurement.
 4. [x] **Plugin adapter & automated rendering:** headless VST3/AU host via Pedalboard, built-in pure Python DSP chains, CLI adapter, and `render` command.
-5. [ ] **CI integration:** publish HTML and JSON reports as artifacts on every commit.
-6. [ ] **Benchmark history:** track render metrics over time and show regressions across builds.
+5. [x] **Benchmark history & regression tracking:** track render metrics over time in append-only JSONL, detect regressions against Git baselines, and render SVG trendline dashboards.
+6. [ ] **CI integration:** publish HTML and JSON reports as artifacts on every commit.
 
 Do not market items on the roadmap as implemented features.
 

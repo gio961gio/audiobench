@@ -100,6 +100,40 @@ def run_render(
         )
 
 
+def run_history_record(summary: Path, history_file: Path, expected_exit_code: int = 0) -> None:
+    command = [
+        sys.executable,
+        "-m",
+        "audiobench",
+        "history",
+        "record",
+        "--summary",
+        str(summary.relative_to(ROOT)),
+        "--history-file",
+        str(history_file.relative_to(ROOT)),
+    ]
+    completed = subprocess.run(command, cwd=ROOT, check=False, text=True)
+    if completed.returncode != expected_exit_code:
+        raise RuntimeError(f"Unexpected exit code for history record: {completed.returncode}")
+
+
+def run_history_report(history_file: Path, out_html: Path, expected_exit_code: int = 0) -> None:
+    command = [
+        sys.executable,
+        "-m",
+        "audiobench",
+        "history",
+        "report",
+        "--history-file",
+        str(history_file.relative_to(ROOT)),
+        "--output",
+        str(out_html.relative_to(ROOT)),
+    ]
+    completed = subprocess.run(command, cwd=ROOT, check=False, text=True)
+    if completed.returncode != expected_exit_code:
+        raise RuntimeError(f"Unexpected exit code for history report: {completed.returncode}")
+
+
 def main() -> int:
     DEMO_DIR.mkdir(parents=True, exist_ok=True)
     frames = int(round(SAMPLE_RATE * DURATION_S))
@@ -167,6 +201,12 @@ def main() -> int:
     manifest_path.write_text(json.dumps(manifest_data, indent=2) + "\n", encoding="utf-8")
     batch_output_dir = DEMO_DIR / "batch"
     run_batch(manifest_path, batch_output_dir, expected_exit_code=1)
+
+    # Demonstrate benchmark history recording and reporting
+    demo_history_file = DEMO_DIR / "demo_history.jsonl"
+    demo_history_html = DEMO_DIR / "history_dashboard.html"
+    run_history_record(batch_output_dir / "summary.json", demo_history_file, expected_exit_code=0)
+    run_history_report(demo_history_file, demo_history_html, expected_exit_code=0)
 
     print("Demo files, batch suite, and reports regenerated in:")
     print(f"  {DEMO_DIR}")

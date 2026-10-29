@@ -27,7 +27,13 @@ Evolvere da un comparatore di due file WAV a un **regression test bench affidabi
 ## 3. Perimetro attuale: cosa fa e cosa non fa
 
 ### Implementato
-- CLI Python con i sottocomandi `generate`, `compare`, `batch` e `render`.
+- CLI Python con i sottocomandi `generate`, `compare`, `batch`, `render` e `history`.
+- Tracking storico dei benchmark e analisi delle regressioni (`src/audiobench/history.py`):
+  - Storage append-only `history.jsonl` con metadati Git (commit hash, branch, is_dirty) e fallback CI su detached HEAD.
+  - Rilevamento delle regressioni metriche (`history diff`) con direzionalità esplicita (`HIGHER_IS_BETTER` per SNR, `LOWER_IS_BETTER` per delay, THD, peak) e tolleranze configurabili.
+  - Risoluzione flessibile della baseline (path a file JSON, hash commit o keyword `latest`/`HEAD~1`).
+  - Integrazione a passo singolo in `audiobench batch` (`--baseline` e `--record-history`).
+  - Dashboard HTML storica autonoma con sparkline e trendline SVG native responsive con tooltip interattivi, senza dipendenze CDN.
 - Hosting headless di plugin audio ed effetti DSP offline (`src/audiobench/plugins.py`):
   - Supporto VST3/AU tramite Spotify Pedalboard (`VST3PluginAdapter`).
   - Effetti DSP integrati deterministici in puro Python/SciPy (`gain`, `lowpass`, `highpass`, `delay`, `soft_clip`).
@@ -44,10 +50,10 @@ Evolvere da un comparatore di due file WAV a un **regression test bench affidabi
 - Quality gate separati per fedeltà, latenza stimata, durata, deviazione bande spettrali (`max_band_delta_db`), THD (`max_thd_db`) e True-Peak (`max_true_peak_dbfs`).
 - Suite batch pilotate da file manifest JSON con risoluzione percorsi relativi, override soglie per singolo test e isolamento dei guasti (fault isolation).
 - Stati complessivi `PASS`, `WARN` o `FAIL`.
-- Report HTML autosufficienti per singolo test e dashboard riassuntiva della suite (`summary.html`), con waveform SVG, tabella frequenze e JSON incorporato.
+- Report HTML autosufficienti per singolo test, dashboard riassuntiva della suite (`summary.html`) e dashboard trend storici (`history.html`), con waveform SVG, sparklines, tabella frequenze e JSON incorporato.
 - Output JSON autonomo per singolo test e aggregato per suite (`summary.json`).
-- Codici di uscita CLI: `0` per PASS/WARN (salvo `--fail-on-warn`), `1` per FAIL/ERROR o WARN con quell'opzione, `2` per input/configurazione/manifest/errore runtime gestito.
-- Suite estesa di 75 test unitari in `tests/` (`test_audio.py`, `test_metrics.py`, `test_batch.py`, `test_cli.py`, `test_analysis.py`, `test_plugins.py`).
+- Codici di uscita CLI: `0` per PASS/WARN (salvo `--fail-on-warn`), `1` per FAIL/ERROR/REGRESSION o WARN con quell'opzione, `2` per input/configurazione/manifest/errore runtime gestito.
+- Suite estesa di 88 test unitari in `tests/` (`test_audio.py`, `test_metrics.py`, `test_batch.py`, `test_cli.py`, `test_analysis.py`, `test_plugins.py`, `test_history.py`).
 - GitHub Actions per eseguire i test su Python 3.10, 3.11, 3.12 e 3.13.
 
 ### Non implementato (non dichiararlo come se lo fosse)
@@ -220,11 +226,19 @@ L'allineamento stimato è riportato come diagnostica, ma i quality gate di fedel
 - Comando CLI dedicato `audiobench render --plugin ... --input ... --output ... [--params ...]`.
 - Rendering dinamico negli scenari batch: i test case possono specificare `input` e `plugin` per generare l'audio al volo e confrontarlo con il reference `expected`, supportando rendering in memoria o persistenza su disco in `renders/`.
 
+### M4: Benchmark Storico & Longitudinal Regression Tracking
+- Modulo `src/audiobench/history.py`.
+- Formato append-only `history.jsonl` (zero merge conflict, ultra-veloce su Windows NTFS e CI).
+- Estrazione metadati Git sicura (commit hash, branch, is_dirty) con fallback CI su detached HEAD.
+- Rilevamento automatico di regressioni di SNR, delay, True-Peak, THD o cambi di stato PASS->FAIL rispetto alla baseline.
+- Sottocomando CLI `audiobench history` con azioni `record`, `diff`, `report`.
+- Integrazione nativa in `audiobench batch` (`--baseline <commit_or_file>` e `--record-history`).
+- Generazione dashboard HTML autonoma con sparkline SVG vettoriali native e tooltip interattivi.
+
 ## 9. Roadmap successiva
 
-1. **Benchmark storico / Tracking metriche**: salvare e confrontare i risultati JSON fra commit o build successive per evidenziare trend di regressione.
-2. **CI Integration & GitHub Actions Artifacts**: pubblicazione automatica dei report HTML/JSON e dei summary come artifact scaricabili in CI.
-3. **UI opzionale / Web Dashboard**: interfaccia grafica leggera (es. Streamlit o web viewer locale) per ispezionare visivamente i report e le waveform.
+1. **CI Integration & GitHub Actions Artifacts**: pubblicazione automatica dei report HTML/JSON e dei summary come artifact scaricabili o deploy su GitHub Pages ad ogni commit/PR.
+2. **UI opzionale / Web Player**: interfaccia web locale leggera (es. Streamlit) per ascolto A/B sincrono (Expected, Actual, Difference amplificata di 20 dB) e ispezione delle waveform.
 
 ## 10. Regole per Antigravity
 

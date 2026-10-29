@@ -12,6 +12,15 @@ from typing import Sequence
 from . import __version__
 from .audio import load_audio, write_test_signals
 from .batch import ManifestError, run_batch
+from .history import (
+    BenchmarkRecord,
+    append_history,
+    compare_benchmarks,
+    generate_history_html,
+    get_default_history_file,
+    load_history,
+    resolve_baseline,
+)
 from .metrics import Thresholds, compare_arrays, evaluate_thresholds
 from .plugins import PluginError, get_plugin_adapter
 from .report import write_html_report
@@ -47,6 +56,16 @@ def _add_batch_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument("--manifest", required=True, help="Path to JSON test manifest file")
     parser.add_argument("--output-dir", default="reports/batch", help="Directory for generated reports (default: reports/batch)")
     parser.add_argument("--fail-on-warn", action="store_true", help="Return exit code 1 for WARN as well as FAIL")
+    parser.add_argument(
+        "--baseline",
+        help="Compare run against historical baseline (commit hash prefix, 'latest', or summary.json path)",
+    )
+    parser.add_argument(
+        "--record-history",
+        action="store_true",
+        help="Automatically append suite run to benchmark history (.benchmarks/history.jsonl)",
+    )
+    parser.add_argument("--history-file", default=None, help="Custom path to history.jsonl")
 
 
 def _add_render_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -70,6 +89,43 @@ def _add_render_parser(subparsers: argparse._SubParsersAction) -> None:
     )
 
 
+def _add_history_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser("history", help="Record and inspect longitudinal benchmark trends")
+    h_sub = parser.add_subparsers(dest="history_action", required=True)
+
+    # record
+    rec_p = h_sub.add_parser("record", help="Append a batch summary to benchmark history")
+    rec_p.add_argument("--summary", required=True, help="Path to batch summary.json")
+    rec_p.add_argument("--history-file", default=None, help="Custom path to history.jsonl")
+
+    # diff
+    diff_p = h_sub.add_parser("diff", help="Compare current run against a historical baseline")
+    diff_p.add_argument(
+        "--baseline",
+        required=True,
+        help="Baseline spec (commit hash prefix, 'latest', 'HEAD~1', or summary.json path)",
+    )
+    diff_p.add_argument("--current", required=True, help="Current summary.json path")
+    diff_p.add_argument("--history-file", default=None, help="Custom path to history.jsonl")
+    diff_p.add_argument(
+        "--max-snr-drop",
+        type=float,
+        default=1.0,
+        help="Allowed SNR drop in dB before flagging regression (default: 1.0 dB)",
+    )
+    diff_p.add_argument(
+        "--max-delay-growth-ms",
+        type=float,
+        default=0.05,
+        help="Allowed delay growth in ms before flagging regression (default: 0.05 ms)",
+    )
+
+    # report
+    rep_p = h_sub.add_parser("report", help="Generate an HTML dashboard showing metric sparkline trends over time")
+    rep_p.add_argument("--output", default="reports/history.html", help="Output HTML report path (default: reports/history.html)")
+    rep_p.add_argument("--history-file", default=None, help="Custom path to history.jsonl")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="audiobench",
@@ -81,6 +137,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_compare_parser(subparsers)
     _add_batch_parser(subparsers)
     _add_render_parser(subparsers)
+    _add_history_parser(subparsers)
     return parser
 
 
@@ -205,6 +262,31 @@ def _run_batch(args: argparse.Namespace) -> int:
         else:
             print(f"  [{test.status}] {test.id}")
 
+    h_file = Path(args.history_file) if getattr(args, "history_file", None) else get_default_history_file()
+    if getattr(args, "record_history", False):
+        try:
+            rec = BenchmarkRecord.from_summary_data(batch_result.to_dict())
+            append_history(rec, h_file)
+            print(f"  Benchmark history recorded: {h_file}")
+        except Exception as exc:
+            print(f"warning: failed to record benchmark history: {exc}", file=sys.stderr)
+
+    if getattr(args, "baseline", None):
+        try:
+            base_rec = resolve_baseline(args.baseline, history_file=h_file)
+            curr_rec = BenchmarkRecord.from_summary_data(batch_result.to_dict())
+            diff_res = compare_benchmarks(base_rec, curr_rec)
+            if diff_res.is_regression:
+                print(f"\n  [REGRESSION DETECTED against baseline '{diff_res.baseline_id}']")
+                for r in diff_res.regressions:
+                    print(f"    - [{r.test_id}] {r.message}")
+                return 1
+            else:
+                print(f"\n  [Baseline Check PASS: no regression against '{diff_res.baseline_id}']")
+        except Exception as exc:
+            print(f"error comparing against baseline: {exc}", file=sys.stderr)
+            return 2
+
     if batch_result.status == "FAIL" or (args.fail_on_warn and batch_result.status == "WARN"):
         return 1
     return 0
@@ -267,6 +349,88 @@ def _run_render(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_history(args: argparse.Namespace) -> int:
+    h_file = Path(args.history_file) if args.history_file else get_default_history_file()
+
+    if args.history_action == "record":
+        summary_path = Path(args.summary)
+        if not summary_path.exists():
+            print(f"error: summary file not found: {summary_path}", file=sys.stderr)
+            return 2
+        try:
+            raw = json.loads(summary_path.read_text(encoding="utf-8"))
+            rec = BenchmarkRecord.from_summary_data(raw)
+            out_file = append_history(rec, h_file)
+            c_label = rec.commit_hash or "unversioned"
+            dirty_str = " (dirty)" if rec.is_dirty else ""
+            print(f"Recorded benchmark for suite '{rec.suite_name}' [{c_label}{dirty_str}] in {out_file}")
+            return 0
+        except Exception as exc:
+            print(f"error recording benchmark: {exc}", file=sys.stderr)
+            return 2
+
+    if args.history_action == "diff":
+        try:
+            base_rec = resolve_baseline(args.baseline, history_file=h_file)
+            curr_path = Path(args.current)
+            if not curr_path.exists():
+                print(f"error: current summary file not found: {curr_path}", file=sys.stderr)
+                return 2
+            curr_raw = json.loads(curr_path.read_text(encoding="utf-8"))
+            curr_rec = BenchmarkRecord.from_summary_data(curr_raw)
+
+            tolerances = {
+                "snr_db": args.max_snr_drop,
+                "estimated_delay_ms": args.max_delay_growth_ms,
+            }
+            diff_res = compare_benchmarks(base_rec, curr_rec, tolerances=tolerances)
+        except Exception as exc:
+            print(f"error during history diff: {exc}", file=sys.stderr)
+            return 2
+
+        print(f"AudioBench History Diff: Baseline [{diff_res.baseline_id}] vs Current [{diff_res.current_id}]")
+        if diff_res.is_regression:
+            print("  Status: REGRESSION DETECTED")
+        else:
+            print("  Status: OK (no regression)")
+
+        if diff_res.regressions:
+            print("\n  Regressions:")
+            for r in diff_res.regressions:
+                print(f"    - [{r.test_id}] {r.message}")
+
+        if diff_res.improvements:
+            print("\n  Improvements:")
+            for i in diff_res.improvements:
+                print(f"    + [{i.test_id}] {i.message}")
+
+        if diff_res.status_changes:
+            print("\n  Status Changes:")
+            for t_id, sc in diff_res.status_changes.items():
+                print(f"    * [{t_id}] {sc['baseline']} -> {sc['current']}")
+
+        if diff_res.added_tests:
+            print(f"\n  Added tests ({len(diff_res.added_tests)}): {', '.join(diff_res.added_tests)}")
+        if diff_res.removed_tests:
+            print(f"\n  Removed tests ({len(diff_res.removed_tests)}): {', '.join(diff_res.removed_tests)}")
+
+        return 1 if diff_res.is_regression else 0
+
+    if args.history_action == "report":
+        try:
+            records = load_history(h_file)
+            if not records:
+                print(f"warning: no records found in '{h_file}'. Empty report will be created.", file=sys.stderr)
+            out_path = generate_history_html(records, args.output)
+            print(f"Generated benchmark history report: {out_path} ({len(records)} runs)")
+            return 0
+        except Exception as exc:
+            print(f"error generating history report: {exc}", file=sys.stderr)
+            return 2
+
+    return 2
+
+
 def _human(value: float | None, unit: str, *, exact: bool = False) -> str:
     if exact:
         return "inf (sample-identical)"
@@ -286,6 +450,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_batch(args)
     if args.command == "render":
         return _run_render(args)
+    if args.command == "history":
+        return _run_history(args)
     parser.error(f"Unknown command: {args.command}")
     return 2
 
