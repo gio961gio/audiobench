@@ -28,9 +28,9 @@ from .report import write_html_report
 
 def _add_generate_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser("generate", help="Generate deterministic audio test signals")
-    parser.add_argument("--output-dir", default="test_signals", help="Directory for generated WAV files")
-    parser.add_argument("--sample-rate", type=int, default=48_000, help="Sample rate in Hz (default: 48000)")
-    parser.add_argument("--duration", type=float, default=1.0, help="Signal duration in seconds (default: 1.0)")
+    parser.add_argument("-o", "--output-dir", default="test_signals", help="Directory for generated WAV files")
+    parser.add_argument("-r", "--sample-rate", type=int, default=48_000, help="Sample rate in Hz (default: 48000)")
+    parser.add_argument("-d", "--duration", type=float, default=1.0, help="Signal duration in seconds (default: 1.0)")
     parser.add_argument("--seed", type=int, default=7, help="Seed for reproducible white noise")
 
 
@@ -102,11 +102,12 @@ def _add_history_parser(subparsers: argparse._SubParsersAction) -> None:
     # diff
     diff_p = h_sub.add_parser("diff", help="Compare current run against a historical baseline")
     diff_p.add_argument(
+        "-b",
         "--baseline",
         required=True,
         help="Baseline spec (commit hash prefix, 'latest', 'HEAD~1', or summary.json path)",
     )
-    diff_p.add_argument("--current", required=True, help="Current summary.json path")
+    diff_p.add_argument("-c", "--current", required=True, help="Current summary.json path")
     diff_p.add_argument("--history-file", default=None, help="Custom path to history.jsonl")
     diff_p.add_argument(
         "--max-snr-drop",
@@ -123,7 +124,7 @@ def _add_history_parser(subparsers: argparse._SubParsersAction) -> None:
 
     # report
     rep_p = h_sub.add_parser("report", help="Generate an HTML dashboard showing metric sparkline trends over time")
-    rep_p.add_argument("--output", default="reports/history.html", help="Output HTML report path (default: reports/history.html)")
+    rep_p.add_argument("-o", "--output", default="reports/history.html", help="Output HTML report path (default: reports/history.html)")
     rep_p.add_argument("--history-file", default=None, help="Custom path to history.jsonl")
 
 

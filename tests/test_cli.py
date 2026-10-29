@@ -202,3 +202,9 @@ def test_cli_short_options(tmp_path, capsys):
     )
     exit_code_batch = main(["batch", "-m", str(manifest), "-o", str(tmp_path / "out")])
     assert exit_code_batch == 0
+
+    # Test short options -d and -o on generate
+    gen_out = tmp_path / "short_gen"
+    exit_code_gen = main(["generate", "-d", "0.1", "-o", str(gen_out)])
+    assert exit_code_gen == 0
+    assert len(list(gen_out.glob("*.wav"))) == 5
