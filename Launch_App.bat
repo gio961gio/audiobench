@@ -3,7 +3,7 @@ title AudioBench - Web Studio Dashboard
 cd /d "%~dp0"
 
 echo ========================================================
-echo   AudioBench: Offline DSP Regression Benchmark & Studio
+echo   AudioBench: Offline DSP Regression Benchmark ^& Studio
 echo ========================================================
 echo.
 

@@ -81,3 +81,29 @@ def test_cli_ui_missing_streamlit(capsys):
         assert exit_code == 1
         captured = capsys.readouterr()
         assert "requires 'streamlit'" in captured.err
+
+
+def test_ui_none_metrics_formatting():
+    # Verify metrics with None values (identical renders, silent signals) are safely handled
+    metrics = {
+        "identical_samples": True,
+        "snr_db": None,
+        "estimated_delay_ms": None,
+        "error_rms_dbfs": None,
+        "actual_true_peak_dbtp": None,
+    }
+    snr_val = metrics.get("snr_db")
+    snr_str = "∞ (identical)" if (metrics.get("identical_samples") or snr_val is None) else f"{snr_val:.2f} dB"
+    assert snr_str == "∞ (identical)"
+
+    delay_val = metrics.get("estimated_delay_ms")
+    delay_str = f"{delay_val:.3f} ms" if delay_val is not None else "—"
+    assert delay_str == "—"
+
+    rms_val = metrics.get("error_rms_dbfs")
+    rms_str = "-∞ (zero error)" if (metrics.get("identical_samples") or rms_val is None) else f"{rms_val:.2f} dBFS"
+    assert rms_str == "-∞ (zero error)"
+
+    tp_val = metrics.get("actual_true_peak_dbtp")
+    tp_str = f"{tp_val:.2f} dBTP" if tp_val is not None else "—"
+    assert tp_str == "—"

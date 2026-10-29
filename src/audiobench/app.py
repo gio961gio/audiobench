@@ -252,10 +252,17 @@ def main() -> None:
                 metrics = selected_test.get("metrics") or {}
                 if metrics:
                     m_cols = st.columns(4)
-                    snr_str = "∞ (identical)" if metrics.get("identical_samples") else f"{metrics.get('snr_db', 0.0):.2f} dB"
+                    snr_val = metrics.get("snr_db")
+                    snr_str = "∞ (identical)" if (metrics.get("identical_samples") or snr_val is None) else f"{snr_val:.2f} dB"
                     m_cols[0].metric("SNR vs Reference", snr_str)
-                    m_cols[1].metric("Estimated Delay", f"{metrics.get('estimated_delay_ms', 0.0):.3f} ms")
-                    m_cols[2].metric("RMS Error", f"{metrics.get('error_rms_dbfs', 0.0):.2f} dBFS")
+
+                    delay_val = metrics.get("estimated_delay_ms")
+                    m_cols[1].metric("Estimated Delay", f"{delay_val:.3f} ms" if delay_val is not None else "—")
+
+                    rms_val = metrics.get("error_rms_dbfs")
+                    rms_str = "-∞ (zero error)" if (metrics.get("identical_samples") or rms_val is None) else f"{rms_val:.2f} dBFS"
+                    m_cols[2].metric("RMS Error", rms_str)
+
                     tp_val = metrics.get("actual_true_peak_dbtp")
                     m_cols[3].metric("True-Peak", f"{tp_val:.2f} dBTP" if tp_val is not None else "—")
 
@@ -399,9 +406,16 @@ def main() -> None:
 
                     res_cols = st.columns(4)
                     res_cols[0].metric("Status", eval_res["status"])
-                    res_cols[1].metric("SNR vs Ref", "∞ (identical)" if metrics["identical_samples"] else f"{metrics['snr_db']:.2f} dB")
-                    res_cols[2].metric("Estimated Delay", f"{metrics['estimated_delay_ms']:.3f} ms")
-                    res_cols[3].metric("RMS Error", f"{metrics['error_rms_dbfs']:.2f} dBFS")
+                    snr_live = metrics.get("snr_db")
+                    snr_live_str = "∞ (identical)" if (metrics.get("identical_samples") or snr_live is None) else f"{snr_live:.2f} dB"
+                    res_cols[1].metric("SNR vs Ref", snr_live_str)
+
+                    delay_live = metrics.get("estimated_delay_ms")
+                    res_cols[2].metric("Estimated Delay", f"{delay_live:.3f} ms" if delay_live is not None else "—")
+
+                    rms_live = metrics.get("error_rms_dbfs")
+                    rms_live_str = "-∞ (zero error)" if (metrics.get("identical_samples") or rms_live is None) else f"{rms_live:.2f} dBFS"
+                    res_cols[3].metric("RMS Error", rms_live_str)
 
                     st.markdown("#### Audition Live Null Difference")
                     sb_boost = st.slider("Live Difference Gain Boost (dB)", 0.0, 48.0, 24.0, step=3.0, key="sb_boost")
