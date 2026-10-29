@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -302,6 +303,53 @@ def _run_batch(args: argparse.Namespace) -> int:
     return 0
 
 
+def _parse_cli_params(raw: str) -> dict[str, Any]:
+    raw_str = raw.strip()
+    # 1. Direct JSON attempt
+    try:
+        parsed = json.loads(raw_str)
+        if isinstance(parsed, dict):
+            return parsed
+    except Exception:
+        pass
+
+    # 2. PowerShell quote-stripped JSON attempt, e.g. {gain_db: -3.0}
+    if raw_str.startswith("{") and raw_str.endswith("}"):
+        fixed = re.sub(r'([{\s,])([a-zA-Z_]\w*)\s*:', r'\1"\2":', raw_str)
+        try:
+            parsed = json.loads(fixed)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception:
+            pass
+
+    # 3. Simple key=value CLI format, e.g. gain_db=-3.0 or gain_db=-3.0,cutoff_hz=1000
+    if "=" in raw_str and not (raw_str.startswith("{") or raw_str.startswith("[")):
+        parsed = {}
+        for item in raw_str.split(","):
+            if "=" in item:
+                k, v = item.split("=", 1)
+                k = k.strip()
+                v = v.strip()
+                if v.lower() == "true":
+                    parsed[k] = True
+                elif v.lower() == "false":
+                    parsed[k] = False
+                else:
+                    try:
+                        parsed[k] = int(v)
+                    except ValueError:
+                        try:
+                            parsed[k] = float(v)
+                        except ValueError:
+                            parsed[k] = v
+        if parsed:
+            return parsed
+
+    # 4. Fallback to standard json.loads to raise informative ValueError
+    return json.loads(raw_str)
+
+
 def _run_render(args: argparse.Namespace) -> int:
     params: dict[str, Any] = {}
     if args.params:
@@ -314,7 +362,7 @@ def _run_render(args: argparse.Namespace) -> int:
                 return 2
         else:
             try:
-                params = json.loads(args.params)
+                params = _parse_cli_params(args.params)
             except Exception as exc:
                 print(f"error: invalid JSON in --params: {exc}", file=sys.stderr)
                 return 2

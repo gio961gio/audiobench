@@ -208,3 +208,21 @@ def test_cli_short_options(tmp_path, capsys):
     exit_code_gen = main(["generate", "-d", "0.1", "-o", str(gen_out)])
     assert exit_code_gen == 0
     assert len(list(gen_out.glob("*.wav"))) == 5
+
+
+def test_cli_parse_params_resilience():
+    from audiobench.cli import _parse_cli_params
+
+    # Standard JSON
+    assert _parse_cli_params('{"gain_db": -3.0}') == {"gain_db": -3.0}
+
+    # PowerShell stripped quotes
+    assert _parse_cli_params("{gain_db: -3.0}") == {"gain_db": -3.0}
+
+    # Key=value syntax
+    assert _parse_cli_params("gain_db=-3.0") == {"gain_db": -3.0}
+    assert _parse_cli_params("cutoff_hz=1000,resonance=0.707,bypass=false") == {
+        "cutoff_hz": 1000,
+        "resonance": 0.707,
+        "bypass": False,
+    }
