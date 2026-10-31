@@ -2,6 +2,8 @@
 
 **A lightweight offline regression test bench for audio renders and DSP algorithms.**
 
+![AudioBench Web Studio Dashboard](docs/images/web_studio_dashboard.png)
+
 AudioBench compares an expected/reference render with an actual render, computes signal-level metrics, applies configurable quality gates, and produces a self-contained HTML report plus machine-readable JSON. It is designed as a small portfolio project that can be extended into automated DSP/plugin QA.
 
 > **Current scope:** AudioBench provides deterministic stimulus generation, offline audio comparison, quality gating, batch manifest execution, and headless audio plugin hosting / DSP offline rendering (VST3/AU via Pedalboard, pure-Python built-in DSP effects, and external CLI tools). It does not control interactive DAWs or silently resample audio.
@@ -294,7 +296,25 @@ WAV / Manifest / Input Stimulus
 pytest
 ```
 
-The unit test suite contains **94 tests** covering DSP algorithms, comparison metrics, delay sign, batch manifests, error isolation, plugin adapters, history tracking, in-memory audio serialization, difference math, safety limiter clamping, and CLI exit codes.
+The unit test suite contains **97 tests** covering DSP algorithms, comparison metrics, delay sign, batch manifests, error isolation, plugin adapters, history tracking, in-memory audio serialization, difference math, safety limiter clamping, and CLI exit codes.
+
+## Ground Truth Benchmark Datasets
+
+AudioBench includes 3 curated benchmark suites with real, authentic audio recordings (~23.8 MB) in `examples/real_datasets/`:
+
+1. **`guitar_hardware/`**: Real clean DI electric guitar signals paired with hardware recordings from a **Blackstar HT-1 Tube Guitar Amplifier** and an **Electro-Harmonix Big Muff Pi** distortion pedal (courtesy of Alec Wright's open research).
+2. **`ebu_sqam/`**: 10 official reference tracks from **EBU Tech 3253 (SQAM)**, including speech in 4 languages, castanets (ultra-fast transient response), glockenspiel, violoncello, harpsichord, and opera vocal.
+3. **`acoustic_impulses/`**: Authentic 48 kHz / 24-bit acoustic impulse responses (courtesy of Damien Zammit / Zamaudio) measured in recording studio booths, live rooms, EMT vintage plate reverbs, and stone halls/cathedrals.
+
+Execute any of the benchmark suites with a single command:
+
+```bash
+python -m audiobench batch -m examples/real_datasets/guitar_hardware/manifest.json
+python -m audiobench batch -m examples/real_datasets/ebu_sqam/manifest.json
+python -m audiobench batch -m examples/real_datasets/acoustic_impulses/manifest.json
+```
+
+See [`examples/real_datasets/CREDITS.md`](examples/real_datasets/CREDITS.md) for full licensing and academic source attribution.
 
 ## Roadmap
 

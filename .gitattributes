@@ -1,0 +1,13 @@
+# Auto detect text files and perform LF normalization on checkin
+* text=auto eol=lf
+
+# Windows batch files must keep CRLF
+*.bat text eol=crlf
+
+# Audio and binary files must never be modified by git line-ending normalization
+*.wav binary
+*.flac binary
+*.vst3 binary
+*.component binary
+*.png binary
+*.jpg binary
