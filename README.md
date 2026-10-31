@@ -10,6 +10,12 @@
 
 Developed by **Giovanni Antonecchia** (*Music Engineering, Politecnico di Milano*).
 
+> [!NOTE]
+> **Proprietary DSP Engine & Academic Evaluation**  
+> AudioBench's core DSP algorithms (ITU-R BS.1770-4 4x polyphase FIR filter, 7-band Welch PSD spectral energy tracking, THD/THD+N analysis, and automated headless VST3/AU host harness) are protected intellectual property.  
+> 
+> You can **test the engine live with your own audio files** via the **[Interactive Web Demo](https://audiobench-engine.streamlit.app)** or request full source code access for institutional and academic evaluation by contacting [Giovanni Antonecchia](mailto:gio.antonecchia961@gmail.com).
+
 ---
 
 ## 📸 Visual Showcase & Interface
@@ -125,64 +131,43 @@ See [`examples/real_datasets/CREDITS.md`](examples/real_datasets/CREDITS.md) for
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Live Evaluation & Interactive Demo
 
-### Installation
+The AudioBench engine is hosted and ready for immediate online evaluation:
 
-```bash
-# Clone repository
-git clone https://github.com/gio961gio/audiobench.git
-cd audiobench
+[![Open Live Demo](https://img.shields.io/badge/Launch-AudioBench_Live_Demo-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://audiobench-engine.streamlit.app)
 
-# Install package with all dependencies
-pip install -e ".[dev]"
-```
+### How to Evaluate:
+1. Open the **[Live Interactive Web Demo](https://audiobench-engine.streamlit.app)** in any desktop or mobile browser.
+2. In the **Live A/B Sandbox** or **Suite & A/B Differential Player**, audition reference and actual audio renders.
+3. Toggle **Compensate Latency** to isolate non-linear harmonic distortion from linear phase delay.
+4. Use the **Difference Gain Boost** slider (up to $+48\text{ dB}$) to audition sub-audible artifacts with the built-in $-0.5\text{ dBFS}$ safety ceiling.
+5. Inspect real-time metrological indicators (ITU-R BS.1770 True-Peak, 7-Band Welch PSD, THD/THD+N, SNR) and download standalone HTML inspection reports.
 
-### 1. Launch Interactive Dark Studio App
+---
 
-```bash
-# Start Streamlit application
-streamlit run app.py
-```
-*(On Windows, you can also double-click `Launch_App.bat`)*
+## ⚙️ Headless CLI & Automated Pipeline Architecture
 
-### 2. Run Headless CLI Batch Analysis
+In addition to the interactive dashboard, AudioBench includes a high-throughput headless CLI designed for automated DSP build pipelines, plugin regression suites, and CI/CD audio test benches.
 
-```bash
-# Run batch regression suite from a JSON manifest
-audiobench batch -m examples/demo/demo_manifest.json --out-dir reports/batch
+### Deterministic Exit Codes for CI/CD
 
-# Run ground truth hardware & normative benchmark suites
-audiobench batch -m examples/real_datasets/guitar_hardware/manifest.json
-audiobench batch -m examples/real_datasets/ebu_sqam/manifest.json
-audiobench batch -m examples/real_datasets/acoustic_impulses/manifest.json
-
-# Offline render audio through VST3/AU or pure Python DSP
-audiobench render -i stimuli/sweep.wav -o render.wav --plugin gain --params gain_db=-6.0
-
-# Compare two audio files directly with custom thresholds
-audiobench compare ref.wav test.wav --min-snr 70 --max-delay-ms 1.0 --html report.html
-```
-
-### Deterministic CLI Exit Codes for CI/CD
-
-| Exit Code | Classification | Meaning |
+| Exit Code | Classification | Operational Meaning |
 | :---: | :---: | :--- |
-| `0` | **PASS** | All evaluated test cases strictly satisfy every threshold. |
-| `1` | **FAIL** | One or more test cases violated quality gates (SNR, THD, True-Peak, Delay). |
-| `2` | **ERROR** | Missing file, mismatched sample rate / channels, or invalid manifest payload. |
+| `0` | **PASS** | All evaluated renders strictly satisfy every normative threshold. |
+| `1` | **FAIL** | One or more audio renders violated critical quality gates (true peak overshoot, SNR, THD, spectral delta). |
+| `2` | **ERROR** | Unreadable/corrupted audio header, missing stem, or invalid manifest payload. |
 
-Use `--fail-on-warn` to treat acoustic warnings as hard CI failures.
+### Output Artifacts
+- **Structured JSON**: Machine-readable payload printed to `stdout` or disk for automated CI build pipelines.
+- **Standalone HTML**: Executive visual report with waveform overviews, 7-band frequency response tables, and embedded JSON results.
+- **Append-Only History**: Longitudinal regression tracking (`history.jsonl`) with Git commit SHA and SVG trendline sparklines.
 
 ---
 
 ## 🧪 Automated Test Suite
 
 AudioBench features a comprehensive test suite of 97 automated unit, integration, and benchmark tests:
-
-```bash
-python -m pytest -v
-```
 
 ```text
 tests/test_analysis.py::test_true_peak_bs1770_inter_sample_overshoot PASSED
@@ -202,11 +187,12 @@ tests/test_ui.py::test_in_memory_wav_serialization PASSED
 
 ---
 
-## ⚠️ Limitations & Methodological Scope
+## 🔒 Source Code Access & Institutional Evaluation
 
-- **Offline Processing:** AudioBench operates offline for deterministic signal analysis; it does not control interactive DAWs or graphical user interfaces.
-- **No Silent Resampling:** AudioBench strictly enforces identical sample rates and channel counts to prevent accidental masking of configuration errors.
-- **Diagnostics vs Listening:** Metrics (SNR, THD, Welch PSD) provide objective technical regression diagnostics, not subjective perceptual evaluations.
+The core DSP engine and CLI distribution are proprietary intellectual property of **Giovanni Antonecchia** (*Music Engineering, Politecnico di Milano*).
+
+For institutional review, academic evaluation, or commercial deployment inquiries, please contact:  
+📧 **[gio.antonecchia961@gmail.com](mailto:gio.antonecchia961@gmail.com)**
 
 ---
 
