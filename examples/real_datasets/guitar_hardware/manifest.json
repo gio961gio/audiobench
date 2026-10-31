@@ -1,0 +1,120 @@
+{
+  "name": "real-guitar-hardware-benchmark",
+  "description": "Ground Truth benchmark with authentic recordings from Blackstar HT-1 Tube Amp and Big Muff Pi",
+  "thresholds": {
+    "min_snr_db": 30.0,
+    "max_delay_ms": 0.1
+  },
+  "tests": [
+    {
+      "id": "real-guitar-01-blackstar_",
+      "description": "Real Hardware Target: blackstar_ht1_amp (Excerpt at 1.0s)",
+      "expected": "ground_truth\\blackstar_ht1_amp_riff_01_gt.wav",
+      "actual": "actual_renders\\blackstar_ht1_amp_riff_01_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 30.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "real-guitar-02-blackstar_",
+      "description": "Real Hardware Target: blackstar_ht1_amp (Excerpt at 5.0s)",
+      "expected": "ground_truth\\blackstar_ht1_amp_riff_02_gt.wav",
+      "actual": "actual_renders\\blackstar_ht1_amp_riff_02_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 30.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "real-guitar-03-blackstar_",
+      "description": "Real Hardware Target: blackstar_ht1_amp (Excerpt at 10.0s)",
+      "expected": "ground_truth\\blackstar_ht1_amp_riff_03_gt.wav",
+      "actual": "actual_renders\\blackstar_ht1_amp_riff_03_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 30.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "real-guitar-04-blackstar_",
+      "description": "Real Hardware Target: blackstar_ht1_amp (Excerpt at 15.0s)",
+      "expected": "ground_truth\\blackstar_ht1_amp_riff_04_gt.wav",
+      "actual": "actual_renders\\blackstar_ht1_amp_riff_04_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 30.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "real-guitar-05-blackstar_",
+      "description": "Real Hardware Target: blackstar_ht1_amp (Excerpt at 20.0s)",
+      "expected": "ground_truth\\blackstar_ht1_amp_riff_05_gt.wav",
+      "actual": "actual_renders\\blackstar_ht1_amp_riff_05_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 30.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "real-guitar-06-ehx_big_mu",
+      "description": "Real Hardware Target: ehx_big_muff_pi (Excerpt at 1.0s)",
+      "expected": "ground_truth\\ehx_big_muff_pi_riff_06_gt.wav",
+      "actual": "actual_renders\\ehx_big_muff_pi_riff_06_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 30.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "real-guitar-07-ehx_big_mu",
+      "description": "Real Hardware Target: ehx_big_muff_pi (Excerpt at 5.0s)",
+      "expected": "ground_truth\\ehx_big_muff_pi_riff_07_gt.wav",
+      "actual": "actual_renders\\ehx_big_muff_pi_riff_07_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 30.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "real-guitar-08-ehx_big_mu",
+      "description": "Real Hardware Target: ehx_big_muff_pi (Excerpt at 10.0s)",
+      "expected": "ground_truth\\ehx_big_muff_pi_riff_08_gt.wav",
+      "actual": "actual_renders\\ehx_big_muff_pi_riff_08_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 30.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "real-guitar-09-ehx_big_mu",
+      "description": "Real Hardware Target: ehx_big_muff_pi (Excerpt at 15.0s)",
+      "expected": "ground_truth\\ehx_big_muff_pi_riff_09_gt.wav",
+      "actual": "actual_renders\\ehx_big_muff_pi_riff_09_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 30.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    },
+    {
+      "id": "real-guitar-10-ehx_big_mu",
+      "description": "Real Hardware Target: ehx_big_muff_pi (Excerpt at 20.0s)",
+      "expected": "ground_truth\\ehx_big_muff_pi_riff_10_gt.wav",
+      "actual": "actual_renders\\ehx_big_muff_pi_riff_10_dsp.wav",
+      "thresholds": {
+        "min_snr_db": 30.0,
+        "max_delay_ms": 0.05,
+        "max_band_delta_db": 1.5
+      }
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "name": "real-acoustic-impulse-responses-suite",
+  "description": "Authentic impulse responses measured in real studios, live rooms, EMT plates, and concert halls",
+  "thresholds": {
+    "min_snr_db": 55.0,
+    "max_delay_ms": 0.05
+  },
+  "tests": [
+    {
+      "id": "real-ir-01-Studio_mon",
+      "description": "Real Measured Space: Studio_mono0 (1 ch, 48000 Hz)",
+      "expected": "ground_truth\\wet_Studio_mono0.wav",
+      "actual": "actual_renders\\dsp_Studio_mono0.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "real-ir-02-Studio_mon",
+      "description": "Real Measured Space: Studio_mono1 (1 ch, 48000 Hz)",
+      "expected": "ground_truth\\wet_Studio_mono1.wav",
+      "actual": "actual_renders\\dsp_Studio_mono1.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "real-ir-03-Room_mono0",
+      "description": "Real Measured Space: Room_mono0 (1 ch, 48000 Hz)",
+      "expected": "ground_truth\\wet_Room_mono0.wav",
+      "actual": "actual_renders\\dsp_Room_mono0.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "real-ir-04-Room_mono1",
+      "description": "Real Measured Space: Room_mono1 (1 ch, 48000 Hz)",
+      "expected": "ground_truth\\wet_Room_mono1.wav",
+      "actual": "actual_renders\\dsp_Room_mono1.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "real-ir-05-Plate_mono",
+      "description": "Real Measured Space: Plate_mono0 (1 ch, 48000 Hz)",
+      "expected": "ground_truth\\wet_Plate_mono0.wav",
+      "actual": "actual_renders\\dsp_Plate_mono0.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "real-ir-06-Plate_mono",
+      "description": "Real Measured Space: Plate_mono1 (1 ch, 48000 Hz)",
+      "expected": "ground_truth\\wet_Plate_mono1.wav",
+      "actual": "actual_renders\\dsp_Plate_mono1.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "real-ir-07-Hall_mono0",
+      "description": "Real Measured Space: Hall_mono0 (1 ch, 48000 Hz)",
+      "expected": "ground_truth\\wet_Hall_mono0.wav",
+      "actual": "actual_renders\\dsp_Hall_mono0.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "real-ir-08-Hall_mono1",
+      "description": "Real Measured Space: Hall_mono1 (1 ch, 48000 Hz)",
+      "expected": "ground_truth\\wet_Hall_mono1.wav",
+      "actual": "actual_renders\\dsp_Hall_mono1.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "real-ir-09-Hall_stere",
+      "description": "Real Measured Space: Hall_stereo0 (2 ch, 48000 Hz)",
+      "expected": "ground_truth\\wet_Hall_stereo0.wav",
+      "actual": "actual_renders\\dsp_Hall_stereo0.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    },
+    {
+      "id": "real-ir-10-Room_stere",
+      "description": "Real Measured Space: Room_stereo0 (2 ch, 48000 Hz)",
+      "expected": "ground_truth\\wet_Room_stereo0.wav",
+      "actual": "actual_renders\\dsp_Room_stereo0.wav",
+      "thresholds": {
+        "min_snr_db": 60.0,
+        "max_delay_ms": 0.05
+      }
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "name": "real-ebu-sqam-acoustic-suite",
+  "description": "Standardized EBU Tech 3253 SQAM reference material for acoustic fidelity and transient testing",
+  "thresholds": {
+    "min_snr_db": 75.0,
+    "max_delay_ms": 0.02
+  },
+  "tests": [
+    {
+      "id": "real-sqam-01-female_spe",
+      "description": "EBU SQAM Standard: Track 01 (Female Speech English)",
+      "expected": "ground_truth\\sqam_01_female_speech_english.wav",
+      "actual": "actual_renders\\sqam_01_female_speech_english_render.wav",
+      "thresholds": {
+        "min_snr_db": 80.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "real-sqam-02-male_speec",
+      "description": "EBU SQAM Standard: Track 02 (Male Speech English)",
+      "expected": "ground_truth\\sqam_02_male_speech_english.wav",
+      "actual": "actual_renders\\sqam_02_male_speech_english_render.wav",
+      "thresholds": {
+        "min_snr_db": 80.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "real-sqam-03-speech_fre",
+      "description": "EBU SQAM Standard: Track 03 (Speech French)",
+      "expected": "ground_truth\\sqam_03_speech_french.wav",
+      "actual": "actual_renders\\sqam_03_speech_french_render.wav",
+      "thresholds": {
+        "min_snr_db": 80.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "real-sqam-04-speech_ger",
+      "description": "EBU SQAM Standard: Track 04 (Speech German)",
+      "expected": "ground_truth\\sqam_04_speech_german.wav",
+      "actual": "actual_renders\\sqam_04_speech_german_render.wav",
+      "thresholds": {
+        "min_snr_db": 80.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "real-sqam-07-castanets_",
+      "description": "EBU SQAM Standard: Track 07 (Castanets Transient)",
+      "expected": "ground_truth\\sqam_07_castanets_transient.wav",
+      "actual": "actual_renders\\sqam_07_castanets_transient_render.wav",
+      "thresholds": {
+        "min_snr_db": 80.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "real-sqam-11-glockenspi",
+      "description": "EBU SQAM Standard: Track 11 (Glockenspiel High Transient)",
+      "expected": "ground_truth\\sqam_11_glockenspiel_high_transient.wav",
+      "actual": "actual_renders\\sqam_11_glockenspiel_high_transient_render.wav",
+      "thresholds": {
+        "min_snr_db": 80.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "real-sqam-16-trumpet_so",
+      "description": "EBU SQAM Standard: Track 16 (Trumpet Solo)",
+      "expected": "ground_truth\\sqam_16_trumpet_solo.wav",
+      "actual": "actual_renders\\sqam_16_trumpet_solo_render.wav",
+      "thresholds": {
+        "min_snr_db": 80.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "real-sqam-27-violoncell",
+      "description": "EBU SQAM Standard: Track 27 (Violoncello Harmonics)",
+      "expected": "ground_truth\\sqam_27_violoncello_harmonics.wav",
+      "actual": "actual_renders\\sqam_27_violoncello_harmonics_render.wav",
+      "thresholds": {
+        "min_snr_db": 80.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "real-sqam-33-harpsichor",
+      "description": "EBU SQAM Standard: Track 33 (Harpsichord Clavicembalo)",
+      "expected": "ground_truth\\sqam_33_harpsichord_clavicembalo.wav",
+      "actual": "actual_renders\\sqam_33_harpsichord_clavicembalo_render.wav",
+      "thresholds": {
+        "min_snr_db": 80.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    },
+    {
+      "id": "real-sqam-40-soprano_op",
+      "description": "EBU SQAM Standard: Track 40 (Soprano Opera Vocal)",
+      "expected": "ground_truth\\sqam_40_soprano_opera_vocal.wav",
+      "actual": "actual_renders\\sqam_40_soprano_opera_vocal_render.wav",
+      "thresholds": {
+        "min_snr_db": 80.0,
+        "max_delay_ms": 0.01,
+        "max_band_delta_db": 0.5
+      }
+    }
+  ]
+}
