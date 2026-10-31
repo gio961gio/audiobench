@@ -1,12 +1,35 @@
+# Python & Bytecode
 __pycache__/
 *.py[cod]
-*.egg-info/
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
 .venv/
 venv/
-.pytest_cache/
+ENV/
+env/
+
+# Packaging & Build
+*.egg-info/
 build/
 dist/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local Output & Caches
 reports/
 .benchmarks/
 stimuli/
 .DS_Store
+Thumbs.db
+
+# Internal Development & AI Agent Scaffolding
+argon_*.md
+ANTIGRAVITY_*.md
+AGENTS.md
+scratch/

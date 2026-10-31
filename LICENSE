@@ -1,17 +1,9 @@
-MIT License
+Copyright (c) 2026 Giovanni Antonecchia. All rights reserved.
 
-Copyright (c) 2026 AudioBench contributors
+The documentation, specifications, benchmark datasets, and visual showcase assets in this repository are provided solely for evaluation, demonstration, and recruitment review.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+The underlying AudioBench DSP engine, algorithms, offline render pipeline, and batch regression test suite are proprietary intellectual property. Unauthorized copying, modification, distribution, reverse engineering, or commercial exploitation of any part of this software without explicit written permission from the copyright holder is strictly prohibited.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+For institutional evaluation, academic collaboration, or commercial licensing inquiries:
+Giovanni Antonecchia — Music Engineering, Politecnico di Milano
+Email: gio.antonecchia961@gmail.com
