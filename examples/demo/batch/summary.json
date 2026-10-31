@@ -2,7 +2,7 @@
   "tool": "AudioBench",
   "version": "0.1.0",
   "name": "demo-regression-suite",
-  "manifest_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\demo_manifest.json",
+  "manifest_path": "examples/demo/demo_manifest.json",
   "status": "FAIL",
   "summary": {
     "total": 3,
@@ -11,14 +11,14 @@
     "failed": 1,
     "errored": 0
   },
-  "output_dir": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch",
-  "summary_html": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\summary.html",
-  "summary_json": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\summary.json",
+  "output_dir": "examples/demo/batch",
+  "summary_html": "examples/demo/batch/summary.html",
+  "summary_json": "examples/demo/batch/summary.json",
   "tests": [
     {
       "id": "identical-render",
-      "expected_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav",
-      "actual_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\render_identical.wav",
+      "expected_path": "examples/demo/reference_white_noise.wav",
+      "actual_path": "examples/demo/render_identical.wav",
       "status": "PASS",
       "input_path": null,
       "description": "Deterministic white noise identical render (PASS)",
@@ -174,13 +174,13 @@
         "max_thd_db": null,
         "max_true_peak_dbfs": null
       },
-      "html_report": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\identical-render.html",
-      "json_report": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\identical-render.json"
+      "html_report": "examples/demo/batch/identical-render.html",
+      "json_report": "examples/demo/batch/identical-render.json"
     },
     {
       "id": "delayed-render",
-      "expected_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav",
-      "actual_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\render_delayed_2_5ms.wav",
+      "expected_path": "examples/demo/reference_white_noise.wav",
+      "actual_path": "examples/demo/render_delayed_2_5ms.wav",
       "status": "FAIL",
       "input_path": null,
       "description": "Artificial 2.5 ms delay exceeding 0.5 ms tolerance (FAIL)",
@@ -336,15 +336,15 @@
         "max_thd_db": null,
         "max_true_peak_dbfs": null
       },
-      "html_report": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\delayed-render.html",
-      "json_report": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\delayed-render.json"
+      "html_report": "examples/demo/batch/delayed-render.html",
+      "json_report": "examples/demo/batch/delayed-render.json"
     },
     {
       "id": "dynamic-gain-render",
-      "expected_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav",
-      "actual_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\renders\\dynamic-gain-render_actual.wav",
+      "expected_path": "examples/demo/reference_white_noise.wav",
+      "actual_path": "examples/demo/batch/renders/dynamic-gain-render_actual.wav",
       "status": "PASS",
-      "input_path": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\reference_white_noise.wav",
+      "input_path": "examples/demo/reference_white_noise.wav",
       "description": "Deterministic white noise rendered dynamically via built-in DSP (PASS)",
       "error_message": null,
       "metrics": {
@@ -498,8 +498,8 @@
         "max_thd_db": null,
         "max_true_peak_dbfs": null
       },
-      "html_report": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\dynamic-gain-render.html",
-      "json_report": "C:\\Users\\Giovanni\\Desktop\\Progetti_professionali\\AudioBench\\examples\\demo\\batch\\dynamic-gain-render.json"
+      "html_report": "examples/demo/batch/dynamic-gain-render.html",
+      "json_report": "examples/demo/batch/dynamic-gain-render.json"
     }
   ]
 }
